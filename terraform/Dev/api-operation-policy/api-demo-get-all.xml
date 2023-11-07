@@ -1,0 +1,19 @@
+
+<policies>
+    <inbound>
+        <base />
+        <!-- DO NOT MODIFY THIS SECTION -->
+        <set-backend-service backend-id="BE--LA-AIS-GF-NSD-API-DEMO" />
+        <rewrite-uri template="{{NV--LA-AIS-GF-NSD-API-DEMO--wf-get-all}}" />
+        <!--Please add any custom policies below this-->   
+            </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

@@ -1,0 +1,393 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "env": {
+            "type": "string",
+            "metadata": {
+                "description": "Environment (DEV, UAT, PRD)"
+            }
+        },
+        "resourceGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource Group for Function App"
+            }
+        },
+        "businessUnitTag": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required)Business unit"
+            }
+        },
+        "subscriptionId": {
+            "type": "string",
+            "metadata": {
+                "description": "Subscription Id - Autopopulated from pipeline"
+            }
+        },
+        "LOB": {
+            "type": "string",
+            "defaultValue": "DS",
+            "minLength": 1,
+            "maxLength": 2,
+            "metadata": {
+                "description": "Down steam name"
+            }
+        },
+        "COB": {
+            "type": "string",
+            "defaultValue": "TS",
+            "minLength": 2,
+            "metadata": {
+                "description": "Class of business"
+            }
+        },
+        "project-suffix": {
+            "type": "string",
+            "defaultValue": "Cloud",
+            "minLength": 1,
+            "maxLength": 13,
+            "metadata": {
+                "description": "Project Suffix along with numeric value. Example: OMEGA-001"
+            }
+        },
+        "LOBTag": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required)LOB"
+            }
+        },
+        "COBTag": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required)COB"
+            }
+        },
+        "SoldToCodeTag": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required)SoldToCode"
+            }
+        },
+        "IsDREnabledTag": {
+            "type": "bool",
+            "metadata": {
+                "description": "(Required)If Application is DR enabled"
+            }
+        },
+        "AISPatternTag": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required) Description of the deployment pattern. Possible values can be a combination of C2C/C2O/O2O/O2C"
+            }
+        },
+        "AppComplexity": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required) AppComplexity can be either Simple, Medium, Complex or SuperComplex"
+            }
+        },
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required) Function App resource Location"
+            }
+        },
+        "IsAppEnabled": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "(Optional) If app enabled?"
+            }
+        },
+        "IsAppRunning": {
+            "type": "string",
+            "defaultValue": "Stopped",
+            "metadata": {
+                "description": "(Optional) Provide value Running to start the app"
+            }
+        },
+        "newOrExisting": {
+            "type": "string",
+            "defaultValue": "existing",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "metadata": {
+                "description": "Storage account already exist or need to be created with the Logic app"
+            }
+        },
+        "storageAccountRG": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required) Storage account resource group"
+            }
+        },
+        "hostingPlanName": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required) ASP name to host the Function App"
+            }
+        },
+        "serverFarmResourceGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required) ASP Resource Group"
+            }
+        },
+        "ASE_ResourceGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required) ASE resource group"
+            }
+        },
+        "ASE_Name": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required) ASE Name that will host the Function App"
+            }
+        },
+        "virtualNetworkResourceGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required) Virtual network Resource Group"
+            }
+        },
+        "virtualNetworkName": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required) Virtual network name"
+            }
+        },
+        "subnetNames": {
+            "type": "array",
+            "metadata": {
+                "description": "(Required) An array of the subnets having access to Storage account. For Function App the APIM and ASE subnet must have access to the storage account"
+            }
+        },
+        "access_restriction": {
+            "type": "string",
+            "defaultValue": "true",
+            "metadata": {
+                "description": "(Optional) Access restriction will be set to false by default for development environment for both external and VNET environment. Value is determined in GitHub workflow."
+            }
+        },
+        "ipSecurityRestrictions": {
+            "type": "array",
+            "defaultValue": [],
+            "metadata": {
+                "description": "(Optional)An array of IP restrictions. By default for UAT and Production, Access restrictions will be added for APIM Address space."
+            }
+        },
+        "alwaysOn": {
+            "type": "bool"
+        },
+        "use32BitWorkerProcess": {
+            "type": "bool"
+        },
+        "functionWorkerRuntime": {
+            "type": "string",
+            "defaultValue": "dotnet",
+            "allowedValues": [
+                "dotnet",
+                "node",
+                "python",
+                "java"
+            ],
+            "metadata": {
+                "description": "The language worker runtime to load in the function app."
+            }
+        },
+        "functionPlanOS": {
+            "type": "string",
+            "defaultValue": "Windows",
+            "allowedValues": [
+                "Windows",
+                "Linux"
+            ],
+            "metadata": {
+                "description": "Specifies the OS used for the Azure Function hosting plan."
+            }
+        },
+        "linuxFxVersion": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Only required for Linux app to represent runtime stack in the format of 'runtime|runtimeVersion'. For example: 'python|3.9'"
+            }
+        },
+        "APPINSIGHTS_INSTRUMENTATIONKEY": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required) Application insight instrumentation key for the corresponding environment"
+            }
+        },
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "(Required) Storage account name"
+            }
+        }
+    },
+    "variables": {
+        "isReserved": "[if(equals(parameters('functionPlanOS'), 'Linux'), true(), false())]",
+        "sitesFunctionAppName": "[concat('FA-','AIS-',parameters('LOB'),'-' ,parameters('COB'),'-' ,parameters('env'),'-' ,parameters('project-suffix'))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2019-06-01",
+            "type": "Microsoft.Storage/storageAccounts",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "name": "[parameters('storageAccountName')]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "business-unit": "[parameters('businessUnitTag')]",
+                "LOB": "[parameters('LOBTag')]",
+                "COB": "[parameters('COBTag')]",
+                "Sold To Code": "[parameters('SoldToCodeTag')]",
+                "IsDREnabled": "[parameters('IsDREnabledTag')]",
+                "AISPattern": "[parameters('AISPatternTag')]",
+                "AppComplexity": "[parameters('AppComplexity')]"
+            },
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "properties": {
+                "supportsHttpsTrafficOnly": true,
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": false,
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "copy": [
+                        {
+                            "name": "virtualNetworkRules",
+                            "count": "[length(parameters('subnetNames'))]",
+                            "input": {
+                                "id": "[resourceId(parameters('virtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetNames')[copyIndex('virtualNetworkRules')].subnetName)]",
+                                "action": "Allow",
+                                "ignoreMissingVNetServiceEndpoint": true
+                            }
+                        }
+                    ],
+                    "ipRules": [],
+                    "defaultAction": "Deny"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-06-01",
+            "name": "STnestedDeployment",
+            "dependsOn": [
+                "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
+            ],
+            "resourceGroup": "[parameters('storageAccountRG')]",
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "http://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "type": "Microsoft.Storage/storageAccounts/blobServices",
+                            "name": "[concat(parameters('storageAccountName'), '/default')]",
+                            "apiVersion": "2019-06-01",
+                            "properties": {
+                                "containerDeleteRetentionPolicy": {
+                                    "enabled": true,
+                                    "days": 30
+                                }
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Storage/storageAccounts/fileServices",
+                            "name": "[concat(parameters('storageAccountName'), '/default')]",
+                            "apiVersion": "2022-09-01",
+                            "properties": {
+                                "shareDeleteRetentionPolicy": {
+                                    "enabled": true,
+                                    "days": 30
+                                }
+                            }
+                        }
+                    ],
+                    "outputs": {}
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2018-11-01",
+            "name": "[variables('sitesFunctionAppName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
+            ],
+            "tags": {
+                "business-unit": "[parameters('businessUnitTag')]",
+                "LOB": "[parameters('LOBTag')]",
+                "COB": "[parameters('COBTag')]",
+                "Sold To Code": "[parameters('SoldToCodeTag')]",
+                "IsDREnabled": "[parameters('IsDREnabledTag')]",
+                "AISPattern": "[parameters('AISPatternTag')]",
+                "AppComplexity": "[parameters('AppComplexity')]"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "kind": "[if(variables('isReserved'), 'functionapp,linux', 'functionapp')]",
+            "properties": {
+                "reserved": "[variables('isReserved')]",
+                "name": "[variables('sitesFunctionAppName')]",
+                "enabled": "[parameters('IsAppEnabled')]",
+                "state": "[parameters('IsAppRunning')]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~4"
+                        },
+                        {
+                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                            "value": "[parameters('functionWorkerRuntime')]"
+                        },
+                        {
+                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                            "value": "~16"
+                        },
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listKeys(resourceId(parameters('subscriptionId'), parameters('storageAccountRG'),'Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[parameters('APPINSIGHTS_INSTRUMENTATIONKEY')]"
+                        },
+                        {
+                            "name": "WEBSITE_RUN_FROM_PACKAGE",
+                            "value": "1"
+                        }
+                    ],
+                    "cors": {
+                        "allowedOrigins": [
+                            "https://portal.azure.com"
+                        ]
+                    },
+                    "use32BitWorkerProcess": "[parameters('use32BitWorkerProcess')]",
+                    "alwaysOn": "[parameters('alwaysOn')]",
+                    "linuxFxVersion": "[if(variables('isReserved'), parameters('linuxFxVersion'), json('null'))]",
+                    "ipSecurityRestrictions": "[if(equals(parameters('access_restriction'), 'true'), parameters('ipSecurityRestrictions'), json('[]'))]"
+                },
+                "serverFarmId": "[concat('/subscriptions/', parameters('subscriptionId'),'/resourcegroups/', parameters('serverFarmResourceGroup'), '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+                "clientAffinityEnabled": false,
+                "virtualNetworkSubnetId": null,
+                "httpsOnly": true,
+                "hostingEnvironmentProfile": "[concat('/subscriptions/', parameters('subscriptionId'),'/resourcegroups/', parameters('ASE_ResourceGroup'), '/providers/Microsoft.Web/hostingEnvironments/', parameters('ASE_Name'))]"
+            }
+        }
+    ]
+}

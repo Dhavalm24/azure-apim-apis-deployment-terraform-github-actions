@@ -1,0 +1,156 @@
+name: Deploy Functions to function app
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: "Choose the environment"
+        options:
+          - DEV
+          - UAT
+          - PRD
+          - DEV-VNET 
+          - UAT-VNET
+          - PRD-VNET
+        required: true
+      RG_FunctionApp:
+        description: "Resource Group Name"
+        required: true
+      FunctionApp_NAME:
+        description: "Function App Name"
+        required: true
+      appname:
+        required: true
+        type: string
+        default: app1
+        description: "App Folder name"
+      processApiMetadata:
+        required: true
+        type: boolean
+        default: true
+        description: "Enable api metadata Publish (Default On)"
+      enableAISDeployment:
+        required: true
+        type: boolean
+        default: true
+        description: "Enable AIS Deployment (Default On)"
+
+env:
+  DOTNET_VERSION: '6.0'
+  AZURE_RESOURCE_GROUP_NAME: '${{ github.event.inputs.RG_FunctionApp}}'
+  AZURE_FUNCTIONAPP_NAME: '${{ github.event.inputs.FunctionApp_NAME}}'
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '${{ github.workspace }}/functions/${{ github.event.inputs.appname}}'
+  BUILD_OUTPUT_PATH: '${{ github.workspace }}/build-artifacts'
+  BUILD_PACKAGE_NAME: 'az-func.zip'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+    ProcessApiMetadata:  
+      if: ${{github.event.inputs.processApiMetadata == 'true'}}
+      uses: sede-x/AIS-ENT-API-REUSE-CATALOGUE/.github/workflows/processApiMetadataJson.V1.yml@main-development
+      secrets: inherit
+      with: 
+        repositoryName: ${{github.event.repository.full_name}}
+        appPath: ${{github.event.inputs.appname}}
+        appName: ${{github.event.inputs.logicAppName}}
+        operation: 'insert or update' 
+        environment: ${{github.event.inputs.environment}}
+        processApiMetadata: ${{github.event.inputs.processApiMetadata}}
+    build-az-function:
+      runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+      if: ${{github.event.inputs.enableAISDeployment == 'true' && always()}}
+      needs: ProcessApiMetadata
+      environment: ${{ github.event.inputs.environment}}  
+      steps:
+       - name: 'Checking out source code'
+         uses: actions/checkout@v3
+
+       - name: 'Setup .NET Environment'
+         uses: actions/setup-dotnet@v1
+         with:
+           dotnet-version: ${{ env.DOTNET_VERSION }}
+       
+       - name: 'Build and package code'
+         shell: bash
+         run: |
+           publishfolder="${{ github.workspace }}/output"
+           mkdir $publishfolder
+           cd $publishfolder
+           dotnet build ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }} --configuration Release --output .
+           mkdir ${{ env.BUILD_OUTPUT_PATH }}
+           zip -r ${{ env.BUILD_OUTPUT_PATH }}/${{ env.BUILD_PACKAGE_NAME }} .
+       
+       # Upload the code artifact, this will be used later
+       - name: 'Package Azure Function release build'
+         uses: actions/upload-artifact@v2
+         with:
+           name: build_artifacts
+           path: ${{ env.BUILD_OUTPUT_PATH }}
+           if-no-files-found: error
+
+    deploy-az-function:
+      needs: [build-az-function]
+      runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+      if: ${{github.event.inputs.enableAISDeployment == 'true' && always() && needs.build-az-function.result == 'success' }}
+      environment: ${{ github.event.inputs.environment}}
+      env:
+        ARM_CLIENT_ID: ${{ secrets.client_id }}
+        ARM_CLIENT_CERTIFICATE_PASSWORD: ${{ secrets.client_certificate_password }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
+        ARM_TENANT_ID: ${{ secrets.tenant_id }}
+        ARM_CERT_THUMBPRINT: ${{ secrets.cert_thumbprint }}
+      steps:
+      
+       # Makes source code accessible via $github.workspace
+       - name: 'Checking out source code'
+         uses: actions/checkout@v3
+       - name: Check Login
+         run: | 
+            Connect-AzAccount -ServicePrincipal -ApplicationId "${{env.ARM_CLIENT_ID}}" -Tenant "${{env.ARM_TENANT_ID}}" -CertificateThumbprint "${{env.ARM_CERT_THUMBPRINT}}"
+            Set-AzContext -Subscription "${{ env.ARM_SUBSCRIPTION_ID }}"
+         shell: pwsh
+       - name: 'Fetching Azure Functions Publishing Profile'
+         id: fncapp
+         uses: azure/powershell@v1
+         with:
+           inlineScript: |
+               $profile = ""
+               $profile = Get-AzWebAppPublishingProfile -ResourceGroupName $env:AZURE_RESOURCE_GROUP_NAME -Name $env:AZURE_FUNCTIONAPP_NAME
+               $profile = $profile.Replace("`r", "").Replace("`n", "")
+               Write-Output "profile=$profile" >> $env:GITHUB_OUTPUT
+           azPSVersion: "latest"
+
+       - name: 'Create output directory'
+         shell: bash
+         run: |
+           mkdir ${{ env.BUILD_OUTPUT_PATH }}
+       # Fetch published code
+       - name: 'Download Azure function release build'
+         uses: actions/download-artifact@v2
+         with:
+           name: build_artifacts
+           path: ${{ env.BUILD_OUTPUT_PATH }}
+
+       # Deploy Azure functions code
+       - name: 'Run Azure Functions Action'
+         uses: Azure/functions-action@v1.4.8
+         with:
+           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+           package: ${{ env.BUILD_OUTPUT_PATH }}/${{ env.BUILD_PACKAGE_NAME }}
+           publish-profile: ${{ steps.fncapp.outputs.profile }}
+    abortApiMetadata:    
+      uses: sede-x/AIS-ENT-API-REUSE-CATALOGUE/.github/workflows/processApiMetadataJson.V1.yml@main-development
+      secrets: inherit    
+      needs: [ProcessApiMetadata,build-az-function,deploy-az-function]
+      if: always() && (needs.build-az-function.result == 'failure' || needs.deploy-az-function.result == 'failure') && (needs.ProcessApiMetadata.result != 'skipped')
+      with: 
+        repositoryName: ${{github.event.repository.full_name}}
+        appPath: ${{github.event.inputs.appname}}
+        operation: delete 
+        appName: ${{needs.ProcessApiMetadata.outputs.InsertOrUpdate}}
+        environment: ${{github.event.inputs.environment}}
+        processApiMetadata: ${{github.event.inputs.processApiMetadata}}

@@ -1,0 +1,19 @@
+
+<policies>
+    <inbound>
+        <base />
+        <!-- DO NOT MODIFY THIS SECTION -->
+        <set-backend-service backend-id="BE--$$laname$$" />
+        <rewrite-uri template="{{NV--$$laname$$--$$workflowname$$}}" />
+        <!--Please add any custom policies below this-->    
+            </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

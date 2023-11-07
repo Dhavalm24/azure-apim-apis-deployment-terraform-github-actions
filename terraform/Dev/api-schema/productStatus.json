@@ -1,0 +1,51 @@
+{
+    "ProductStatus": {
+        "type": "object",
+        "properties": {
+            "product_name": {
+                "type": "string"
+            }
+        },
+        "test": {
+            "type": "object",
+            "properties": {
+                "required": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type": {
+                    "type": "string"
+                },
+                "properties": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "isInStock": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

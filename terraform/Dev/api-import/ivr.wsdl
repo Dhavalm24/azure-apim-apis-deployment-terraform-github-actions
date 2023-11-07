@@ -1,0 +1,88 @@
+<wsdl:definitions xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://com/denodo/webservice/wsgetcardbalance" xmlns:intf="http://com/denodo/webservice/wsgetcardbalance" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://com/denodo/webservice/wsgetcardbalance">
+<!--
+WSDL created by Apache Axis version: 1.4
+Built on Apr 22, 2006 (06:55:48 PDT)
+-->
+<wsdl:types>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://com/denodo/webservice/wsgetcardbalance">
+<complexType name="GetRV_GETCARDBALANCEByCARD_IDAndBALANCE">
+<sequence>
+<element maxOccurs="1" minOccurs="0" name="CARD_ID" type="xsd:string"/>
+</sequence>
+</complexType>
+<element name="GetRV_GETCARDBALANCEByCARD_IDAndBALANCE" type="impl:GetRV_GETCARDBALANCEByCARD_IDAndBALANCE"/>
+<complexType name="RV_GETCARDBALANCEReturnRow">
+<sequence>
+<element maxOccurs="1" minOccurs="0" name="CARD_ID" type="xsd:string"/>
+<element maxOccurs="1" minOccurs="0" name="BALANCE" type="xsd:decimal"/>
+</sequence>
+</complexType>
+<element name="RV_GETCARDBALANCEReturn">
+<complexType>
+<sequence>
+<element maxOccurs="unbounded" minOccurs="0" name="item" type="impl:RV_GETCARDBALANCEReturnRow"/>
+</sequence>
+</complexType>
+</element>
+<complexType name="ArrayOfRV_GETCARDBALANCEReturnRow">
+<sequence>
+<element maxOccurs="unbounded" minOccurs="0" name="item" type="impl:RV_GETCARDBALANCEReturnRow"/>
+</sequence>
+</complexType>
+<complexType name="_QueryExecutionError">
+<sequence>
+<element maxOccurs="1" minOccurs="0" name="errorCode" type="xsd:int"/>
+<element maxOccurs="1" minOccurs="0" name="errorMessage" type="xsd:string"/>
+</sequence>
+</complexType>
+<complexType name="ArrayOf_QueryExecutionError">
+<sequence>
+<element maxOccurs="unbounded" minOccurs="0" name="item" type="impl:_QueryExecutionError"/>
+</sequence>
+</complexType>
+<complexType name="GetRV_GETCARDBALANCEByCARD_IDAndBALANCEException">
+<sequence>
+<element maxOccurs="1" minOccurs="0" name="data" type="impl:ArrayOfRV_GETCARDBALANCEReturnRow"/>
+<element maxOccurs="1" minOccurs="0" name="error" type="impl:ArrayOf_QueryExecutionError"/>
+</sequence>
+</complexType>
+<element name="GetRV_GETCARDBALANCEByCARD_IDAndBALANCEException" type="impl:GetRV_GETCARDBALANCEByCARD_IDAndBALANCEException"/>
+</schema>
+</wsdl:types>
+<wsdl:message name="GetRV_GETCARDBALANCEByCARD_IDAndBALANCEException">
+<wsdl:part element="impl:GetRV_GETCARDBALANCEByCARD_IDAndBALANCEException" name="GetRV_GETCARDBALANCEByCARD_IDAndBALANCEException"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="getRV_GETCARDBALANCEByCARD_IDAndBALANCERequest">
+<wsdl:part element="impl:GetRV_GETCARDBALANCEByCARD_IDAndBALANCE" name="GetRV_GETCARDBALANCEByCARD_IDAndBALANCE"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="getRV_GETCARDBALANCEByCARD_IDAndBALANCEResponse">
+<wsdl:part element="impl:RV_GETCARDBALANCEReturn" name="RV_GETCARDBALANCEReturn"> </wsdl:part>
+</wsdl:message>
+<wsdl:portType name="wsgetcardbalance">
+<wsdl:operation name="getRV_GETCARDBALANCEByCARD_IDAndBALANCE" parameterOrder="GetRV_GETCARDBALANCEByCARD_IDAndBALANCE">
+<wsdl:input message="impl:getRV_GETCARDBALANCEByCARD_IDAndBALANCERequest" name="getRV_GETCARDBALANCEByCARD_IDAndBALANCERequest"> </wsdl:input>
+<wsdl:output message="impl:getRV_GETCARDBALANCEByCARD_IDAndBALANCEResponse" name="getRV_GETCARDBALANCEByCARD_IDAndBALANCEResponse"> </wsdl:output>
+<wsdl:fault message="impl:GetRV_GETCARDBALANCEByCARD_IDAndBALANCEException" name="GetRV_GETCARDBALANCEByCARD_IDAndBALANCEException"> </wsdl:fault>
+</wsdl:operation>
+</wsdl:portType>
+<wsdl:binding name="wsgetcardbalanceSoapBinding" type="impl:wsgetcardbalance">
+<wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+<wsdl:operation name="getRV_GETCARDBALANCEByCARD_IDAndBALANCE">
+<wsdlsoap:operation soapAction="http://localhost:8080/wsgetcardbalance/services/wsgetcardbalance/getRV_GETCARDBALANCEByCARD_IDAndBALANCE"/>
+<wsdl:input name="getRV_GETCARDBALANCEByCARD_IDAndBALANCERequest">
+<wsdlsoap:body use="literal"/>
+</wsdl:input>
+<wsdl:output name="getRV_GETCARDBALANCEByCARD_IDAndBALANCEResponse">
+<wsdlsoap:body use="literal"/>
+</wsdl:output>
+<wsdl:fault name="GetRV_GETCARDBALANCEByCARD_IDAndBALANCEException">
+<wsdlsoap:fault name="GetRV_GETCARDBALANCEByCARD_IDAndBALANCEException" use="literal"/>
+</wsdl:fault>
+</wsdl:operation>
+</wsdl:binding>
+<wsdl:service name="wsgetcardbalanceService">
+<wsdl:port binding="impl:wsgetcardbalanceSoapBinding" name="wsgetcardbalance">
+<wsdlsoap:address location="https://rtf01-uat-ipaaslb.shell.com/exp-mobility-loyalty-transactions-v1-uat/wsgetcardbalanceService/wsgetcardbalance​​​​​​​"/>
+</wsdl:port>
+</wsdl:service>
+</wsdl:definitions>

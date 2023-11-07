@@ -1,0 +1,128 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "env": {
+            "value": "DEV"
+        },
+        "resourceGroup":{
+            "value": "<<IDEDeveloper>>"
+        },
+        "businessUnitTag": {
+            "value": "<<IDEDeveloper>>"
+        },
+        "ProjectNameTag":{
+            "value": "<<IDEDeveloper>>"
+        },
+        "LOBTag":{
+            "value": "<<IDEDeveloper>>"
+        },
+        "COBTag":{
+            "value": "<<IDEDeveloper>>"
+        },
+        "SoldToCodeTag":{
+            "value": "<<IDEDeveloper>>"
+        },
+        "IsDREnabledTag": {
+            "value": "<<IDEDeveloper>>"
+        },
+        "AISPatternTag": {
+            "value": "<<IDEDeveloper>>"
+        },
+        "AppComplexity": {
+            "value": "<<IDEDeveloper>>"
+        },
+        "IsAppRunning": {
+            "value": "Running"
+        },
+        "LOB": {
+            "value": "<<IDEDeveloper>>"
+        },
+        "COB": {
+            "value": "<<IDEDeveloper>>"
+        },
+        "project-suffix": {
+            "value": "<<IDEDeveloper>>"
+        },
+        "location": {
+            "value": "westeurope"
+        },
+        "storageAccountName": {
+            "value": "<<IDEDeveloper>>"
+        },
+        "storageAccountRG": {
+            "value": "<<IDEDeveloper>>"
+        },
+        "newOrExisting": {
+            "value": "storage_newOrExisting"
+        },
+        "hostingPlanName": {
+            "value": "<<IDEDeveloper>>"
+        },
+        "serverFarmResourceGroup": {
+            "value": "<<IDEDeveloper>>"
+        },
+        "ASE_ResourceGroup": {
+            "value": "RG-AIS-ENT-DEV-002"
+        },
+        "ASE_Name": {
+            "value": "ASE-AIS-ENT-DEV-002"
+        },
+        "APPINSIGHTS_INSTRUMENTATIONKEY": {
+            "value": "27054b0d-b491-430b-b94b-b6abeeb0fb10"
+        },
+        "subscriptionId": {
+            "value": "subscriptionId_value"
+        },
+        "alwaysOn": {
+            "value": true
+        },
+        "use32BitWorkerProcess": {
+            "value": false
+        },
+        "functionWorkerRuntime": {
+            "value": "dotnet"
+        },
+        "virtualNetworkResourceGroup": {
+            "value": "RG-AIS-ENT-DEV-002"
+        },
+        "virtualNetworkName": {
+            "value": "VNET-AIS-10.0.0.0-16"
+        },
+        "subnetNames": {
+            "value": [
+                {
+                    "subnetName": "SN-AIS-ENT-APIM-DEV-001",
+                    "action": "Allow",
+                    "ignoreMissingVNetServiceEndpoint": true
+                },
+                {
+                    "subnetName": "SN-AIS-ENT-ASE-DEV-001",
+                    "action": "Allow",
+                    "ignoreMissingVNetServiceEndpoint": true
+                }
+            ]
+        },
+        "access_restriction": {
+            "value": "true"
+        },
+        "ipSecurityRestrictions": {
+            "value": [
+                {
+                    "ipAddress": "10.0.0.0/27",
+                    "action": "Allow",
+                    "tag": "Default",
+                    "priority": 99,
+                    "name": "Allow APIM IP",
+                    "description": "Allow APIM IP"
+                }
+            ]
+        },
+        "linuxFxVersion": {
+            "value": "python|3.9"
+        },
+        "functionPlanOS": {
+            "value": "Windows"
+        }
+    }
+}

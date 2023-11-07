@@ -1,0 +1,86 @@
+name: Update parameter.json for App
+on:
+ workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: "Choose the environment"
+        options:
+          - DEV
+          - UAT
+          - PRD
+          - DR
+          - DEV-VNET
+          - UAT-VNET
+          - PRD-VNET
+          - DR-VNET
+        required: true
+      resourceGroupName:
+        description: "Resource Group Name"
+        required: true
+      logicAppName:
+        description: "Logic App Name"
+        required: true
+      appname:
+        required: true
+        type: string
+        default: app1
+        description: "App Folder name"
+jobs:
+  Build:
+    runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+    environment: ${{ github.event.inputs.environment}}
+    env:
+      ARM_CLIENT_ID: ${{ secrets.client_id }}
+      ARM_CLIENT_CERTIFICATE_PASSWORD: ${{ secrets.client_certificate_password }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
+      ARM_TENANT_ID: ${{ secrets.tenant_id }}
+      ARM_CERT_THUMBPRINT: ${{ secrets.cert_thumbprint }}
+      
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.commitid }}
+      - name: Check Az Login
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+      - name: Compress app
+        run: |
+              pwd
+              ls
+              cd apps/${{github.event.inputs.appname}}
+              mv parameters/parameters.${{github.event.inputs.environment}}.json parameters.json
+              mkdir -p ../output
+              zip -r ../output/${{github.event.inputs.appname}}.zip parameters.json
+              ls ../output
+      - name: upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{github.event.inputs.appname}}.zip
+          path: ${{ github.workspace }}/apps/output/${{github.event.inputs.appname}}.zip
+          retention-days: 1
+  Deploy:
+    name: Deploy
+    runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+    needs: [Build]
+    environment: ${{ github.event.inputs.environment}}
+    env:
+      ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
+      
+    defaults:
+      run: 
+        shell: pwsh
+    steps:
+      - name: Check Az Login
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+      - uses: actions/download-artifact@master
+        with:
+         name: ${{github.event.inputs.appname}}.zip
+         path: ./output/
+      - name: Deploy parameters.json to Azure Logic App
+        run: |
+          az account set --subscription ${{ env.ARM_SUBSCRIPTION_ID }}
+          az logicapp deployment source config-zip -g ${{github.event.inputs.resourceGroupName}} -n ${{github.event.inputs.logicAppName}} --src ./output/${{github.event.inputs.appname}}.zip

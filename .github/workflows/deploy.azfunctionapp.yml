@@ -1,0 +1,83 @@
+name: Create Function App
+on:
+ workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: "Choose the environment"
+        options:
+          - DEV
+          - UAT
+          - PRD
+          - DEV-VNET 
+          - UAT-VNET
+          - PRD-VNET
+        required: true
+      FunctionAppFolder:
+        description: "Name of the Function App Folder"
+        required: true
+      commitid:
+        required: false
+        type: string
+        description: "Commit# to deploy"
+
+jobs:
+  DeployFunctionApp:
+    runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+    environment: ${{ github.event.inputs.environment}}
+    env:
+      ARM_CLIENT_ID: ${{ secrets.client_id }}
+      ARM_CLIENT_CERTIFICATE_PASSWORD: ${{ secrets.client_certificate_password }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
+      ARM_TENANT_ID: ${{ secrets.tenant_id }}
+      ARM_CERT_THUMBPRINT: ${{ secrets.cert_thumbprint }}
+      ARM_FunctionAppName: ${{ github.event.inputs.FunctionAppFolder }}
+
+    defaults:
+      run: 
+        shell: pwsh
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.commitid }}
+      - name: Check Login and Create parameter.json file
+        id: set_parameters
+        run: | 
+            Connect-AzAccount -ServicePrincipal -ApplicationId "${{env.ARM_CLIENT_ID}}" -Tenant "${{env.ARM_TENANT_ID}}" -CertificateThumbprint "${{env.ARM_CERT_THUMBPRINT}}"
+            Set-AzContext -Subscription "${{ env.ARM_SUBSCRIPTION_ID }}"
+            
+            $path="deployments/azfunctionapp/${{env.ARM_FunctionAppName}}/parameters.${{github.event.inputs.environment}}.json"
+            $json=get-content $path | ConvertFrom-Json
+            $ResourceGroupName=$json.parameters.resourceGroup.value
+            Write-Output "ResourceGroupName=$ResourceGroupName" >> $env:GITHUB_OUTPUT
+            $Location=$json.parameters.location.value
+            $Tag=$json.parameters.businessUnitTag.value
+            $StorageAccount=$json.parameters.storageAccountName.value
+            $StorageAccountRG=$json.parameters.storageAccountRG.value
+            Get-AzStorageAccount -ResourceGroupName $StorageAccountRG -Name $StorageAccount -ErrorVariable storageNotCreated -ErrorAction SilentlyContinue
+            if ($storageNotCreated){
+              (Get-Content $path).Replace("storage_newOrExisting", "new") | Set-Content $path
+            }
+            else {
+              (Get-Content $path).Replace("storage_newOrExisting", "existing") | Set-Content $path
+            }
+            (Get-Content $path).Replace("subscriptionId_value", "${{env.ARM_SUBSCRIPTION_ID}}") | Set-Content $path
+
+            Get-AzResourceGroup -Name $ResourceGroupName -ErrorVariable notPresent -ErrorAction SilentlyContinue
+            if ($notPresent){
+              New-AzResourceGroup -Name $ResourceGroupName -Location $Location -Tag @{"business-unit_value"=$Tag}
+            }
+
+      - name: Check Az Login
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+
+      - name: Deploying Function App
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ github.event.inputs.subscription_id }}
+          resourceGroupName: ${{steps.set_parameters.outputs.ResourceGroupName}}
+          template: './deployments/azfunctionapp/${{env.ARM_FunctionAppName}}/template.json'
+          parameters: './deployments/azfunctionapp/${{env.ARM_FunctionAppName}}/parameters.${{github.event.inputs.environment}}.json'

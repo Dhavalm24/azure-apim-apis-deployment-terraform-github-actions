@@ -1,0 +1,204 @@
+name: Deploy Functions to function app with API
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: "Choose the environment"
+        options:
+          - DEV
+          - UAT
+          - PRD
+          - DR
+          - DEV-VNET 
+          - UAT-VNET
+          - PRD-VNET
+          - DR-VNET
+        required: true
+      RG_FunctionApp:
+        description: "Resource Group Name"
+        required: true
+      FunctionApp_NAME:
+        description: "Function App Name"
+        required: true
+      appname:
+        required: true
+        type: string
+        default: app1
+        description: "App Folder name"
+      processApiMetadata:
+        required: true
+        type: boolean
+        default: true
+        description: "Enable api metadata Publish (Default On)"
+      enableAISDeployment:
+        required: true
+        type: boolean
+        default: true
+        description: "Enable AIS Deployment (Default On)"
+
+env:
+  DOTNET_VERSION: '6.0'
+  AZURE_RESOURCE_GROUP_NAME: '${{ github.event.inputs.RG_FunctionApp}}'
+  AZURE_FUNCTIONAPP_NAME: '${{ github.event.inputs.FunctionApp_NAME}}'
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '${{ github.workspace }}/functions/${{ github.event.inputs.appname}}'
+  BUILD_OUTPUT_PATH: '${{ github.workspace }}/build-artifacts'
+  BUILD_PACKAGE_NAME: 'az-func.zip'
+  APIM_NAME : ${{ vars.APIM_Name }}
+  APIM_RG : ${{ vars.APIM_RG }}
+  RUNNER_USER : ${{ secrets.RUNNER_USER }}
+  ARM_KEYVAULT: ${{ secrets.ARM_KEYVAULT }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+    ProcessApiMetadata:  
+      if: ${{github.event.inputs.processApiMetadata == 'true'}}
+      uses: sede-x/AIS-ENT-API-REUSE-CATALOGUE/.github/workflows/processApiMetadataJson.V1.yml@main-development
+      secrets: inherit
+      with: 
+        repositoryName: ${{github.event.repository.full_name}}
+        appPath: ${{github.event.inputs.appname}}
+        appName: ${{github.event.inputs.logicAppName}}
+        operation: 'insert or update' 
+        environment: ${{github.event.inputs.environment}}
+        processApiMetadata: ${{github.event.inputs.processApiMetadata}}
+    build-az-function:
+      runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+      if: ${{github.event.inputs.enableAISDeployment == 'true' && always()}}
+      needs: ProcessApiMetadata
+      environment: ${{ github.event.inputs.environment}}  
+      steps:
+       - name: 'Checking out source code'
+         uses: actions/checkout@v3
+
+       - name: 'Setup .NET Environment'
+         uses: actions/setup-dotnet@v1
+         with:
+           dotnet-version: ${{ env.DOTNET_VERSION }}
+       
+       - name: 'Build and package code'
+         shell: bash
+         run: |
+           publishfolder="${{ github.workspace }}/output"
+           mkdir $publishfolder
+           cd $publishfolder
+           dotnet build ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }} --configuration Release --output .
+           mkdir ${{ env.BUILD_OUTPUT_PATH }}
+           zip -r ${{ env.BUILD_OUTPUT_PATH }}/${{ env.BUILD_PACKAGE_NAME }} .
+       
+       # Upload the code artifact, this will be used later
+       - name: 'Package Azure Function release build'
+         uses: actions/upload-artifact@v2
+         with:
+           name: build_artifacts
+           path: ${{ env.BUILD_OUTPUT_PATH }}
+           if-no-files-found: error
+
+    deploy-az-function:
+      needs: [build-az-function]
+      runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+      if: ${{github.event.inputs.enableAISDeployment == 'true' && always() && needs.build-az-function.result == 'success' }}
+      environment: ${{ github.event.inputs.environment}}
+      env:
+        ARM_CLIENT_ID: ${{ secrets.client_id }}
+        ARM_CLIENT_CERTIFICATE_PASSWORD: ${{ secrets.client_certificate_password }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
+        ARM_TENANT_ID: ${{ secrets.tenant_id }}
+        ARM_CERT_THUMBPRINT: ${{ secrets.cert_thumbprint }}
+      steps:
+      
+       # Makes source code accessible via $github.workspace
+       - name: 'Checking out source code'
+         uses: actions/checkout@v3
+       - name: Check Login
+         run: | 
+            Connect-AzAccount -ServicePrincipal -ApplicationId "${{env.ARM_CLIENT_ID}}" -Tenant "${{env.ARM_TENANT_ID}}" -CertificateThumbprint "${{env.ARM_CERT_THUMBPRINT}}"
+            Set-AzContext -Subscription "${{ env.ARM_SUBSCRIPTION_ID }}"
+         shell: pwsh
+       - name: 'Fetching Azure Functions Publishing Profile'
+         id: fncapp
+         uses: azure/powershell@v1
+         with:
+           inlineScript: |
+               $profile = ""
+               $profile = Get-AzWebAppPublishingProfile -ResourceGroupName $env:AZURE_RESOURCE_GROUP_NAME -Name $env:AZURE_FUNCTIONAPP_NAME
+               $profile = $profile.Replace("`r", "").Replace("`n", "")
+               Write-Output "profile=$profile" >> $env:GITHUB_OUTPUT
+           azPSVersion: "latest"
+
+       - name: 'Create output directory'
+         shell: bash
+         run: |
+           mkdir ${{ env.BUILD_OUTPUT_PATH }}
+       # Fetch published code
+       - name: 'Download Azure function release build'
+         uses: actions/download-artifact@v2
+         with:
+           name: build_artifacts
+           path: ${{ env.BUILD_OUTPUT_PATH }}
+
+       # Deploy Azure functions code
+       - name: 'Run Azure Functions Action'
+         uses: Azure/functions-action@v1.4.8
+         with:
+           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+           package: ${{ env.BUILD_OUTPUT_PATH }}/${{ env.BUILD_PACKAGE_NAME }}
+           publish-profile: ${{ steps.fncapp.outputs.profile }}
+       - name: 'Deploy Backend and Named value for Function APP'
+         shell: pwsh
+         run: |
+           Connect-AzAccount -ServicePrincipal -ApplicationId "${{env.ARM_CLIENT_ID}}" -Tenant "${{env.ARM_TENANT_ID}}" -CertificateThumbprint "${{env.ARM_CERT_THUMBPRINT}}"
+           Set-AzContext -Subscription "${{ env.ARM_SUBSCRIPTION_ID }}"
+           $apimContext = New-AzApiManagementContext -ResourceId ((Get-AzApiManagement -ResourceGroupName ${{env.APIM_RG}} -Name ${{env.APIM_NAME}}).Id)
+           az login --service-principal -u ${{ env.ARM_CLIENT_ID }} -p /home/${{ env.RUNNER_USER }}/Certs/spn.pem --tenant ${{ env.ARM_TENANT_ID }}
+           az account set --subscription ${{ env.ARM_SUBSCRIPTION_ID }}
+           $state_original=az functionapp show --resource-group ${{ github.event.inputs.RG_FunctionApp }} --name ${{ github.event.inputs.FunctionApp_NAME }} --query "state"
+           $state="true"
+           if($state_original -match "Stopped")
+           {
+           az functionapp start --name ${{ github.event.inputs.FunctionApp_NAME }} --resource-group ${{ github.event.inputs.RG_FunctionApp }}
+           $state="false"
+           }
+           $fakey=(az functionapp keys list -g ${{ github.event.inputs.RG_FunctionApp }} -n ${{ github.event.inputs.FunctionApp_NAME }}) | ConvertFrom-Json
+           $secretSigVal=$fakey.functionKeys.default
+           $namedValueName = ("NV--"+"${{github.event.inputs.FunctionApp_NAME}}").ToUpper()
+           $Secret = ConvertTo-SecureString -String $secretSigVal -AsPlainText -Force
+           Set-AzKeyVaultSecret -Name $namedValueName -SecretValue $Secret -Vault "${{env.ARM_KEYVAULT}}"
+           $secretIdentifier = (Get-AzKeyVaultSecret -VaultName ${{env.ARM_KEYVAULT}} -Name $namedValueName).Id
+           $secretIdentifier = $secretIdentifier.Substring(0,$secretIdentifier.Length-33)
+           $keyvault = New-AzApiManagementKeyVaultObject -SecretIdentifier $secretIdentifier
+           $keyVaultNamedValue = New-AzApiManagementNamedValue -Context $apimContext -NamedValueId $namedValueName -Name $namedValueName -keyVault $keyvault -Secret
+           $faurl = (Get-AzWebApp -ResourceGroupName ${{ github.event.inputs.RG_FunctionApp }} -Name ${{ github.event.inputs.FunctionApp_NAME }}).HostNames
+           $backendURL = 'https://'+$faurl
+           $backendId = ("BE--"+"${{github.event.inputs.appname}}").ToUpper()
+           $nv=Get-AzApiManagementNamedValue -Context $apimContext -Name $namedValueName
+           $credential = New-AzApiManagementBackendCredential -Header @{"x-functions-key" = @("{{" + $nv.Name + "}}")}
+           Try
+           {
+           Get-AzApiManagementBackend -Context $apimContext -BackendId $backendId -ErrorAction Stop
+           Set-AzApiManagementBackend -Context $apimContext -Protocol http -BackendId $backendId -Url $backendURL -Credential $credential
+           }
+           Catch
+           {
+           New-AzApiManagementBackend -Context $apimContext -Protocol http -BackendId $backendId -Url $backendURL -Credential $credential
+           }
+           if($state -match "false")
+           {
+           az functionapp stop --name ${{ github.event.inputs.FunctionApp_NAME }} --resource-group ${{ github.event.inputs.RG_FunctionApp }}
+           }
+    abortApiMetadata:    
+      uses: sede-x/AIS-ENT-API-REUSE-CATALOGUE/.github/workflows/processApiMetadataJson.V1.yml@main-development
+      secrets: inherit    
+      needs: [ProcessApiMetadata,build-az-function,deploy-az-function]
+      if: always() && (needs.build-az-function.result == 'failure' || needs.deploy-az-function.result == 'failure') && (needs.ProcessApiMetadata.result != 'skipped')
+      with: 
+        repositoryName: ${{github.event.repository.full_name}}
+        appPath: ${{github.event.inputs.appname}}
+        operation: delete 
+        appName: ${{needs.ProcessApiMetadata.outputs.InsertOrUpdate}}
+        environment: ${{github.event.inputs.environment}}
+        processApiMetadata: ${{github.event.inputs.processApiMetadata}}

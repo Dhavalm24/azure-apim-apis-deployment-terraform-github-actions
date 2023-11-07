@@ -1,0 +1,303 @@
+name: Deploy Workflow to Logic App with API
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: "Choose the environment"
+        options:
+          - DEV
+          - UAT
+          - PRD
+          - DR
+          - DEV-VNET
+          - UAT-VNET
+          - PRD-VNET
+          - DR-VNET
+        required: true
+      resourceGroupName:
+        description: "Resource Group Name"
+        required: true
+        type: string
+      logicAppName:
+        description: "Logic App Name"
+        required: true
+        type: string
+      appname:
+        required: true
+        type: string
+        description: "App Folder name"
+      commitid:
+        required: false
+        type: string
+        description: "Commit# to deploy"
+      connections:
+        required: true
+        type: boolean
+        default: false
+        description: "set to true if the app needs an API connection"
+      processApiMetadata:
+        required: true
+        type: boolean
+        default: false
+        description: "Enable api metadata Publish (Default On)"
+      enableAISDeployment:
+        required: true
+        type: boolean
+        default: true
+        description: "Enable AIS Deployment (Default On)"
+      connectionName:
+        required: false
+        type: string
+        default: false
+        description: "Connection Names separated by ,"
+      connectionRg:
+        required: false
+        type: string
+        default: false
+        description: "Connection Resource Group "
+env:
+  ARM_CLIENT_ID: ${{ secrets.client_id }}
+  ARM_CLIENT_CERTIFICATE_PASSWORD: ${{ secrets.client_certificate_password }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
+  ARM_TENANT_ID: ${{ secrets.tenant_id }}
+  ARM_CERT_THUMBPRINT: ${{ secrets.cert_thumbprint }}
+  ARM_KEYVAULT: ${{ secrets.ARM_KEYVAULT }}
+  APIM_NAME : ${{ vars.APIM_Name }}
+  APIM_RG : ${{ vars.APIM_RG }}
+  RUNNER_USER : ${{ secrets.RUNNER_USER }}
+jobs:
+  ProcessApiMetadata:  
+    if: ${{github.event.inputs.processApiMetadata == 'true'}}
+    uses: sede-x/AIS-ENT-API-REUSE-CATALOGUE/.github/workflows/processApiMetadataJson.V1.yml@main
+    secrets: inherit
+    with: 
+      repositoryName: ${{github.event.repository.full_name}}
+      appPath: ${{github.event.inputs.appname}}
+      appName: ${{github.event.inputs.logicAppName}}
+      operation: 'insert or update' 
+      environment: ${{github.event.inputs.environment}}
+      processApiMetadata: ${{github.event.inputs.processApiMetadata}}
+  Build:
+    runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+    if: ${{github.event.inputs.enableAISDeployment == 'true' && always()}}
+    needs: ProcessApiMetadata
+    environment: ${{ github.event.inputs.environment}}
+    env:
+      RG_CONNECTION: ${{ github.event.inputs.connectionRg}}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.commitid }}
+      - name: Check Az Login
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+      - name: Check Connections
+        shell: pwsh
+        run: |
+              pwd
+              echo "Check Connections"
+              if ("${{github.event.inputs.connections}}" -eq "true")
+              {
+                echo "Connection needed"
+                
+                $valuesToSplit="${{github.event.inputs.connectionName}}"
+                $connections_rg="${{env.RG_CONNECTION}}"
+                $connection_values= $valuesToSplit -split "," 
+                $body="";
+
+                foreach($value in $connection_values)
+                  {   
+                    $authentication_value="ManagedServiceIdentity"
+                    $connection_value = (az resource show --name "$value" --resource-group "$connections_rg" --resource-type "Microsoft.web/connections" --query "id") -replace '"',''
+                    $api_id_value = (az resource show --name "$value" --resource-group "$connections_rg" --resource-type "Microsoft.web/connections" --query "properties.api.id") -replace '"',''
+                    $connectionRuntimeUrl_value = (az resource show --name "$value" --resource-group "$connections_rg" --resource-type "Microsoft.web/connections" --query "properties.connectionRuntimeUrl") -replace '"',''
+                    $tmp = '
+                        "'+$value+'": {
+                            "api": {
+                                "id": "'+$api_id_value+'"
+                            },
+                            "authentication": {
+                                "type": "'+$authentication_value+'"
+                            },
+                            "connection": {
+                                "id": "'+$connection_value+'"
+                            },
+                            "connectionRuntimeUrl": "'+$connectionRuntimeUrl_value+'"
+                        }'
+                    if($body)
+                      {
+                      $body = $body+","+$tmp
+                      }
+                    else
+                      {
+                      $body = $tmp
+                      }                   
+                  }
+                mkdir managedconnecter
+                touch managedconnecter/managedconnections.json
+                $path="managedconnecter/managedconnections.json"
+                $p_init = '
+                {
+                        "managedApiConnections": {'
+                $p_end = "}"
+                #$json= $p_init+$body+$p_end
+                #$json | Out-File -FilePath $path
+                $connectorpath= "apps/${{github.event.inputs.appname}}/connections.json"
+                if (Test-Path $connectorpath)
+                {
+                  $tempjson1 = Get-Content $connectorpath -Raw
+                  $tempjson1 = $tempjson1.TrimStart("{")
+                  $tempjson1 = $tempjson1.TrimEnd("}")
+                  $json= $p_init+$body+$p_end+","+$tempjson1
+                  $json | Out-File -FilePath $connectorpath
+                }
+                else
+                {
+                $json= $p_init+$body+$p_end+$p_end
+                $json | Out-File -FilePath $connectorpath
+                }  
+              }
+              echo "end check"
+      - name: Compress app
+        shell: pwsh
+        run: |
+              pwd
+              ls
+              cd apps/${{github.event.inputs.appname}}
+              $parameter="parameters/parameters.${{github.event.inputs.environment}}.json"
+              if (Test-Path $parameter)
+              {
+                cp $parameter .
+                mv parameters.${{github.event.inputs.environment}}.json parameters.json
+              }
+              else
+              {
+                Write-host "Parameter not present"
+              }
+              mkdir -p ../output
+              zip -r ../output/${{github.event.inputs.appname}}.zip .
+              ls ../output
+      - name: upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{github.event.inputs.appname}}.zip
+          path: ${{ github.workspace }}/apps/output/${{github.event.inputs.appname}}.zip
+          retention-days: 1
+  Deploy:
+    name: Deploy
+    runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+    if: ${{github.event.inputs.enableAISDeployment == 'true' && always() && needs.Build.result == 'success' }}
+    needs: [Build]
+    environment: ${{ github.event.inputs.environment}}
+    defaults:
+      run: 
+        shell: pwsh
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Check Login
+        run: | 
+            Connect-AzAccount -ServicePrincipal -ApplicationId "${{env.ARM_CLIENT_ID}}" -Tenant "${{env.ARM_TENANT_ID}}" -CertificateThumbprint "${{env.ARM_CERT_THUMBPRINT}}"
+            Set-AzContext -Subscription "${{ env.ARM_SUBSCRIPTION_ID }}"
+      - name: Get publish Profile
+        uses: azure/powershell@v1
+        id: la_profile
+        with:
+          inlineScript: |
+            $profile = Get-AzWebAppPublishingProfile -ResourceGroupName ${{github.event.inputs.resourceGroupName}} -Name ${{github.event.inputs.logicAppName}}
+            $profile = $profile.Replace("`r", "").Replace("`n", "")
+            Write-Output "profile=$profile" >> $env:GITHUB_OUTPUT
+          azPSVersion: "latest"
+      - uses: actions/download-artifact@master
+        with:
+         name: ${{github.event.inputs.appname}}.zip
+         path: ./output/
+      - name: Deploy to Azure Logic App
+        uses: Azure/functions-action@v1.4.8
+        id: la
+        with:
+          app-name: ${{github.event.inputs.logicAppName}}
+          package: ./output/${{github.event.inputs.appname}}.zip
+          publish-profile: ${{steps.la_profile.outputs.profile}}
+      - name: Get URL of deployed Workflow and add to APIMs Named Value
+        id: getwfurl
+        run: |
+          $logicappurl = (Get-AzWebApp -ResourceGroupName ${{github.event.inputs.resourceGroupName}} -Name ${{github.event.inputs.logicAppName}}).Id
+          $path="apps/${{github.event.inputs.appname}}"
+          $uriarrlist = @()
+          $MyWorkflow = @()
+          $apimContext = New-AzApiManagementContext -ResourceId ((Get-AzApiManagement -ResourceGroupName ${{env.APIM_RG}} -Name ${{env.APIM_NAME}}).Id)
+          $backendURL = 'https://'+(Get-AzWebApp -ResourceGroupName ${{github.event.inputs.resourceGroupName}} -Name ${{github.event.inputs.logicAppName}}).EnabledHostNames[0]
+          $backendId = ("BE--"+"${{github.event.inputs.appName}}").ToUpper()
+          Try
+            {
+            Get-AzApiManagementBackend -Context $apimContext -BackendId $backendId -ErrorAction Stop
+            Set-AzApiManagementBackend -Context $apimContext -Protocol http -BackendId $backendId -Url $backendURL
+            }
+          Catch
+            {
+            New-AzApiManagementBackend -Context $apimContext -Protocol http -BackendId $backendId -Url $backendURL
+            }
+          $MyWorkflow += ((Get-ChildItem $path -Filter "wf*" -Directory).Name)
+          $uriindex = 0
+          az login --service-principal -u ${{ env.ARM_CLIENT_ID }} -p /home/${{ env.RUNNER_USER }}/Certs/spn.pem --tenant ${{ env.ARM_TENANT_ID }}
+          az account set --subscription ${{ env.ARM_SUBSCRIPTION_ID }}
+          $state_original=az functionapp show --resource-group ${{ github.event.inputs.resourceGroupName }} --name ${{ github.event.inputs.logicAppName }} --query "state"
+          $state="true"
+          if($state_original -match "Stopped")
+          {
+          az functionapp start --name ${{ github.event.inputs.logicAppName }} --resource-group ${{ github.event.inputs.resourceGroupName }}
+          $state="false"
+          }
+          for($index=0; $index -lt ($MyWorkflow.count); $index++)
+            {
+            Write-Output $MyWorkflow[$index]
+            $triggerTypeURI = 'https://management.azure.com/subscriptions/' + "${{ env.ARM_SUBSCRIPTION_ID }}" + '/resourceGroups/' + "${{github.event.inputs.resourceGroupName}}" + '/providers/Microsoft.Web/sites/' + "${{github.event.inputs.logicAppName}}" + '/hostruntime/runtime/webhooks/workflow/api/management/workflows/' + $MyWorkflow[$index] + '/triggers?api-version=2018-11-01'
+            Write-Output $triggerTypeURI
+            Try
+              {
+              $triggerTypeJson = az rest --method get --uri $triggerTypeURI
+              #Write-Output $triggerTypeJson
+              $triggerType = $triggerTypeJson | ConvertFrom-Json 
+              Write-Host "The Trigger type for the workflow " $MyWorkflow[$index] " is" $triggerType.value[0].name
+              $wfurl = 'https://management.azure.com' + $logicappurl + '/hostruntime/runtime/webhooks/workflow/api/management/workflows/' + $MyWorkflow[$index] + '/triggers/' + $triggerType.value[0].name + '/listCallbackUrl?api-version=2018-11-01'
+              #Write-Output $wfurl
+              if((az rest --method post --uri $wfurl | ConvertFrom-Json).value -ne $null)
+                { 
+                $uriarrlist += ((az rest --method post --uri $wfurl | ConvertFrom-Json).value)
+                $subStrPosition = 'net:443'
+                $secretSigVal = ($uriarrlist[$uriindex].Substring($uriarrlist[$uriindex].IndexOf($subStrPosition)+($subStrPosition.Length)))
+                $namedValueName = ("NV--"+"${{github.event.inputs.appName}}"+"--"+$MyWorkflow[$index]).ToUpper()
+                $Secret = ConvertTo-SecureString -String $secretSigVal -AsPlainText -Force
+                Set-AzKeyVaultSecret -Name $namedValueName -SecretValue $Secret -Vault "${{env.ARM_KEYVAULT}}"
+                $secretIdentifier = (Get-AzKeyVaultSecret -VaultName ${{env.ARM_KEYVAULT}} -Name $namedValueName).Id
+                $secretIdentifier = $secretIdentifier.Substring(0,$secretIdentifier.Length-33)
+                $keyvault = New-AzApiManagementKeyVaultObject -SecretIdentifier $secretIdentifier
+                $keyVaultNamedValue = New-AzApiManagementNamedValue -Context $apimContext -NamedValueId $namedValueName -Name $namedValueName -keyVault $keyvault -Secret
+                $uriindex++
+                }
+              }
+            Catch
+              {
+              Write-Host "The workflow" $MyWorkflow[$index] "is not of type HTTP"
+              Continue
+              }
+            }
+          if($state -match "false")
+           {
+           az functionapp stop --name ${{ github.event.inputs.logicAppName }} --resource-group ${{ github.event.inputs.resourceGroupName }}
+           }
+  abortApiMetadata:    
+      uses: sede-x/AIS-ENT-API-REUSE-CATALOGUE/.github/workflows/processApiMetadataJson.V1.yml@main
+      secrets: inherit    
+      needs: [ProcessApiMetadata,Build,Deploy]
+      if: always() && (needs.Build.result == 'failure' || needs.Deploy.result == 'failure') && (needs.ProcessApiMetadata.result != 'skipped')
+      with: 
+        repositoryName: ${{github.event.repository.full_name}}
+        appPath: ${{github.event.inputs.appname}}
+        operation: delete 
+        appName: ${{needs.ProcessApiMetadata.outputs.InsertOrUpdate}}
+        environment: ${{github.event.inputs.environment}}
+        processApiMetadata: ${{github.event.inputs.processApiMetadata}}

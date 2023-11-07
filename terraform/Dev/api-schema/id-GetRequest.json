@@ -1,0 +1,90 @@
+{
+    "id-GetRequest": {
+        "required": [
+            "id",
+            "name"
+        ],
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string",
+                "description": "Product Id"
+            },
+            "name": {
+                "type": "string",
+                "description": "Product Name"
+            },
+            "category": {
+                "type": "string",
+                "description": "Product Category"
+            },
+            "isInStock": {
+                "type": "boolean",
+                "description": "Is product in-stock"
+            }
+        },
+        "test": {
+            "type": "object",
+            "properties": {
+                "required": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type": {
+                    "type": "string"
+                },
+                "properties": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "name": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "category": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "isInStock": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

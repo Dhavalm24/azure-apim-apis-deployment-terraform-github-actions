@@ -1,0 +1,103 @@
+name: Terraform Apply
+on:
+ workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: "Choose the environment"
+        options:
+          - Dev
+          - UAT
+          - PRD
+          - Dev-VNET 
+          - UAT-VNET
+          - PRD-VNET
+          - DR
+          - DR-VNET
+        required: true
+jobs:
+  TerraformApply:
+    runs-on: [AIS-Test]
+    environment: ${{ github.event.inputs.environment}}
+    env:
+      ARM_ENV: ${{github.event.inputs.environment}}
+      ARM_CLIENT_ID: ${{ secrets.client_id }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
+      ARM_TENANT_ID: ${{ secrets.tenant_id }}
+      PEM-FILE: /home/runner/work/spn.pfx
+      PEM-PWD: ${{secrets.PFX_PASS}}
+      CERT: ${{secrets.CLIENT_CERTIFICATE_PASSWORD}}
+      TF_BACKEND_RG: ${{secrets.TF_API_DEMO_RG}}
+      TF_BACKEND_STACC: ${{secrets.TF_API_DEMO_BACKEND_STACC}}
+      TF_CONTAINER: ${{secrets.TF_API_DEMO_CONTAINER}}
+    defaults:
+      run: 
+        shell: bash
+    steps:
+      - name: Setup Azure SPN Certificate file inside the runner
+        run: |
+          touch /home/runner/work/spn.pem
+          echo "$CERT" > /home/runner/work/spn.pem  
+          touch /home/runner/work/spn.pfx
+          # openssl pkcs12 -export -password pass:"${{env.PEM-PWD}}" -in /home/runner/work/spn.pem -out /home/runner/work/spn.pfx
+          # ls /home/runner/work/
+      - name: Generate PFX Inside Runner
+        shell: pwsh
+        run: | 
+          # touch /home/runner/work/spn.pem
+          # echo "$CERT" > /home/runner/work/spn.pem  
+          # touch /home/runner/work/spn.pfx
+          openssl pkcs12 -export -password pass:"${{env.PEM-PWD}}" -in /home/runner/work/spn.pem -out /home/runner/work/spn.pfx
+          ls /home/runner/work/
+            
+      - name: Check Az Login
+        run: |
+          az login --service-principal -u ${{ env.ARM_CLIENT_ID }} -p /home/runner/work/spn.pem --tenant ${{ env.ARM_TENANT_ID }}
+          az account set --subscription ${{ env.ARM_SUBSCRIPTION_ID }}
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ inputs.commitid }}
+      - name: Get main file for terraform
+        run: |
+          cp "${{env.ARM_ENV}}"/main.tf .  
+          cp "${{env.ARM_ENV}}"/variables.tf .  
+        working-directory: 'terraform/'
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with: 
+          terraform_version: latest
+      - name: Terraform initialization
+        id: init
+        run: |
+          az login --service-principal -u ${{ env.ARM_CLIENT_ID }} -p /home/runner/work/spn.pem --tenant ${{ env.ARM_TENANT_ID }}
+          az account set --subscription ${{ env.ARM_SUBSCRIPTION_ID }}
+          export ARM_ACCESS_KEY=$(az storage account keys list --subscription "${{ env.ARM_SUBSCRIPTION_ID }}" -g "${{ env.TF_BACKEND_RG }}" -n "${{ env.TF_BACKEND_STACC }}" --query "[0].value" -o tsv)
+          terraform init -backend-config="resource_group_name=${{ env.TF_BACKEND_RG }}" -backend-config="storage_account_name=${{ env.TF_BACKEND_STACC }}" -backend-config="container_name=${{ env.TF_CONTAINER }}" -backend-config="key=terraform.tfstate"
+        working-directory: 'terraform/'
+      - name: Terraform Plan
+        shell: pwsh
+        run: |
+          $Env:ARM_CLIENT_ID="${{ env.ARM_CLIENT_ID }}"
+          $Env:ARM_CLIENT_CERTIFICATE_PATH="${{ env.PEM-FILE }}"
+          $Env:ARM_CLIENT_CERTIFICATE_PASSWORD="${{env.PEM-PWD}}"
+          $Env:ARM_TENANT_ID="${{ env.ARM_TENANT_ID }}"
+          $Env:ARM_SUBSCRIPTION_ID="${{ env.ARM_SUBSCRIPTION_ID }}"
+          $Env:ARM_ACCESS_KEY=$(az storage account keys list --subscription "${{ env.ARM_SUBSCRIPTION_ID }}" -g "${{ env.TF_BACKEND_RG }}" -n "${{ env.TF_BACKEND_STACC }}" --query "[0].value" -o tsv)
+          terraform plan -out "tf_plan" -var-file="${{env.ARM_ENV}}/env.tfvars"
+        working-directory: 'terraform/'
+      - name: Terraform Apply
+        shell: pwsh
+        run: |
+          $Env:ARM_CLIENT_ID="${{ env.ARM_CLIENT_ID }}"
+          $Env:ARM_CLIENT_CERTIFICATE_PATH="${{ env.PEM-FILE }}"
+          $Env:ARM_CLIENT_CERTIFICATE_PASSWORD="${{env.PEM-PWD}}"
+          $Env:ARM_TENANT_ID="${{ env.ARM_TENANT_ID }}"
+          $Env:ARM_SUBSCRIPTION_ID="${{ env.ARM_SUBSCRIPTION_ID }}"
+          $Env:ARM_ACCESS_KEY=$(az storage account keys list --subscription "${{ env.ARM_SUBSCRIPTION_ID }}" -g "${{ env.TF_BACKEND_RG }}" -n "${{ env.TF_BACKEND_STACC }}" --query "[0].value" -o tsv)
+          terraform apply -var-file="${{env.ARM_ENV}}/env.tfvars" -auto-approve
+        working-directory: 'terraform/'
+      - name: Cleanup
+        run: |
+          rm -rf /home/runner/work/spn.pem
+          rm -rf /home/runner/work/spn.pfx
