@@ -22,7 +22,7 @@ Before you begin, make sure you have the following installed:
 - [GitHub Actions](https://docs.github.com/en/actions)
 
 ## Folder Structure
-
+```
 .
 ├── .github/workflows           # GitHub Actions workflows
 │   └── main.yml                # Main workflow for deployment
@@ -34,7 +34,7 @@ Before you begin, make sure you have the following installed:
 │   └── app                     # API application code
 ├── README.md                   # Project documentation
 └── LICENSE                     # License information
-
+```
 ## Setup
 
 1. Clone this repository:
