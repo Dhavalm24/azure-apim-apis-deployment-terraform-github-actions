@@ -37,20 +37,25 @@ Before you begin, make sure you have the following installed:
 ```
 ## Setup
 
-1. Clone this repository:
+```markdown
+## Setup
 
-   ```bash
-   git clone https://github.com/your-username/azure-api-terraform.git
-   cd azure-api-terraform
+### 1. Clone this repository:
 
+```bash
+git clone https://github.com/your-username/azure-api-terraform.git
+cd azure-api-terraform
+```
 
-Create a service principal in Azure and set the following secrets in your GitHub repository settings:
+### 2. Create a service principal in Azure and set the following secrets in your GitHub repository settings:
 
-ARM_CLIENT_ID: Azure Service Principal Client ID
-ARM_CLIENT_SECRET: Azure Service Principal Client Secret
-ARM_SUBSCRIPTION_ID: Azure Subscription ID
-ARM_TENANT_ID: Azure Tenant ID
-Customize the Terraform configuration in the infra folder according to your requirements.
+- `ARM_CLIENT_ID`: Azure Service Principal Client ID
+- `ARM_CLIENT_SECRET`: Azure Service Principal Client Secret
+- `ARM_SUBSCRIPTION_ID`: Azure Subscription ID
+- `ARM_TENANT_ID`: Azure Tenant ID
+
+### 3. Customize the Terraform configuration in the `infra` folder according to your requirements.
+```
 
 Workflow
 The GitHub Actions workflow is defined in .github/workflows/main.yml. It performs the following steps:
