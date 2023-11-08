@@ -23,7 +23,6 @@ Before you begin, make sure you have the following installed:
 
 ## Folder Structure
 
-
 .
 ├── .github/workflows # GitHub Actions workflows
 │ └── main.yml # Main workflow for deployment
@@ -35,7 +34,6 @@ Before you begin, make sure you have the following installed:
 │ └── app # API application code
 ├── README.md # Project documentation
 └── LICENSE # License information
-
 
 ## Setup
 
