@@ -24,16 +24,16 @@ Before you begin, make sure you have the following installed:
 ## Folder Structure
 
 .
-├── .github/workflows # GitHub Actions workflows
-│ └── main.yml # Main workflow for deployment
-├── infra # Terraform infrastructure code
-│ ├── main.tf # Main Terraform configuration
-│ ├── variables.tf # Variables used in the configuration
-│ └── outputs.tf # Output values from the configuration
-├── src # Source code for the API
-│ └── app # API application code
-├── README.md # Project documentation
-└── LICENSE # License information
+├── .github/workflows           # GitHub Actions workflows
+│   └── main.yml                # Main workflow for deployment
+├── infra                       # Terraform infrastructure code
+│   ├── main.tf                 # Main Terraform configuration
+│   ├── variables.tf            # Variables used in the configuration
+│   └── outputs.tf              # Output values from the configuration
+├── src                         # Source code for the API
+│   └── app                     # API application code
+├── README.md                   # Project documentation
+└── LICENSE                     # License information
 
 ## Setup
 
