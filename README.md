@@ -55,15 +55,15 @@ cd azure-api-terraform
 - `ARM_TENANT_ID`: Azure Tenant ID
 
 ### 3. Customize the Terraform configuration in the `infra` folder according to your requirements.
-```
 
 ### 4 .Workflow.
 
-| Name      | Age | Occupation    |
-|-----------|-----|---------------|
-| John      | 25  | Developer     |
-| Jane      | 30  | Designer      |
-| Bob       | 28  | Data Analyst  |
+| Column 1 Header | Column 2 Header | Column 3 Header |
+|-----------------|-----------------|-----------------|
+| Row 1, Col 1    | Row 1, Col 2    | Row 1, Col 3    |
+| Row 2, Col 1    | Row 2, Col 2    | Row 2, Col 3    |
+| Row 3, Col 1    | Row 3, Col 2    | Row 3, Col 3    |
+
 
 The GitHub Actions workflow is defined in .github/workflows/main.yml. It performs the following steps:
 
