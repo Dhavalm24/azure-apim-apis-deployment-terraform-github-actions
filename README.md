@@ -1,98 +1,72 @@
-<div align="center" id="top"> 
-  <img src="./.github/app.gif" alt="Azure Apim Apis Deployment Terraform Github Actions" />
+# Azure API Deployment with Terraform using GitHub Actions
 
-  &#xa0;
+## Overview
 
-  <!-- <a href="https://azureapimapisdeploymentterraformgithubactions.netlify.app">Demo</a> -->
-</div>
+This repository contains the necessary files and configurations to deploy an API on Azure using Terraform. The deployment process is automated using GitHub Actions, ensuring a smooth and consistent deployment pipeline.
 
-<h1 align="center">Azure Apim Apis Deployment Terraform Github Actions</h1>
+## Table of Contents
 
-<p align="center">
-  <img alt="Github top language" src="https://img.shields.io/github/languages/top/{{YOUR_GITHUB_USERNAME}}/azure-apim-apis-deployment-terraform-github-actions?color=56BEB8">
+- [Prerequisites](#prerequisites)
+- [Folder Structure](#folder-structure)
+- [Setup](#setup)
+- [Workflow](#workflow)
+- [Contributing](#contributing)
+- [License](#license)
 
-  <img alt="Github language count" src="https://img.shields.io/github/languages/count/{{YOUR_GITHUB_USERNAME}}/azure-apim-apis-deployment-terraform-github-actions?color=56BEB8">
+## Prerequisites
 
-  <img alt="Repository size" src="https://img.shields.io/github/repo-size/{{YOUR_GITHUB_USERNAME}}/azure-apim-apis-deployment-terraform-github-actions?color=56BEB8">
+Before you begin, make sure you have the following installed:
 
-  <img alt="License" src="https://img.shields.io/github/license/{{YOUR_GITHUB_USERNAME}}/azure-apim-apis-deployment-terraform-github-actions?color=56BEB8">
+- [Terraform](https://www.terraform.io/downloads.html)
+- [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+- [GitHub Actions](https://docs.github.com/en/actions)
 
-  <!-- <img alt="Github issues" src="https://img.shields.io/github/issues/{{YOUR_GITHUB_USERNAME}}/azure-apim-apis-deployment-terraform-github-actions?color=56BEB8" /> -->
+## Folder Structure
+```
+.
+├── .github/workflows           # GitHub Actions workflows
+│   └── main.yml                # Main workflow for deployment
+├── infra                       # Terraform infrastructure code
+│   ├── main.tf                 # Main Terraform configuration
+│   ├── variables.tf            # Variables used in the configuration
+│   └── outputs.tf              # Output values from the configuration
+├── src                         # Source code for the API
+│   └── app                     # API application code
+├── README.md                   # Project documentation
+└── LICENSE                     # License information
+```
+## Setup
 
-  <!-- <img alt="Github forks" src="https://img.shields.io/github/forks/{{YOUR_GITHUB_USERNAME}}/azure-apim-apis-deployment-terraform-github-actions?color=56BEB8" /> -->
+```markdown
+## Setup
 
-  <!-- <img alt="Github stars" src="https://img.shields.io/github/stars/{{YOUR_GITHUB_USERNAME}}/azure-apim-apis-deployment-terraform-github-actions?color=56BEB8" /> -->
-</p>
-
-<!-- Status -->
-
-<!-- <h4 align="center"> 
-	🚧  Azure Apim Apis Deployment Terraform Github Actions 🚀 Under construction...  🚧
-</h4> 
-
-<hr> -->
-
-<p align="center">
-  <a href="#dart-about">About</a> &#xa0; | &#xa0; 
-  <a href="#sparkles-features">Features</a> &#xa0; | &#xa0;
-  <a href="#rocket-technologies">Technologies</a> &#xa0; | &#xa0;
-  <a href="#white_check_mark-requirements">Requirements</a> &#xa0; | &#xa0;
-  <a href="#checkered_flag-starting">Starting</a> &#xa0; | &#xa0;
-  <a href="#memo-license">License</a> &#xa0; | &#xa0;
-  <a href="https://github.com/{{YOUR_GITHUB_USERNAME}}" target="_blank">Author</a>
-</p>
-
-<br>
-
-## :dart: About ##
-
-Describe your project
-
-## :sparkles: Features ##
-
-:heavy_check_mark: Feature 1;\
-:heavy_check_mark: Feature 2;\
-:heavy_check_mark: Feature 3;
-
-## :rocket: Technologies ##
-
-The following tools were used in this project:
-
-- [Expo](https://expo.io/)
-- [Node.js](https://nodejs.org/en/)
-- [React](https://pt-br.reactjs.org/)
-- [React Native](https://reactnative.dev/)
-- [TypeScript](https://www.typescriptlang.org/)
-
-## :white_check_mark: Requirements ##
-
-Before starting :checkered_flag:, you need to have [Git](https://git-scm.com) and [Node](https://nodejs.org/en/) installed.
-
-## :checkered_flag: Starting ##
+### 1. Clone this repository:
 
 ```bash
-# Clone this project
-$ git clone https://github.com/{{YOUR_GITHUB_USERNAME}}/azure-apim-apis-deployment-terraform-github-actions
-
-# Access
-$ cd azure-apim-apis-deployment-terraform-github-actions
-
-# Install dependencies
-$ yarn
-
-# Run the project
-$ yarn start
-
-# The server will initialize in the <http://localhost:3000>
+git clone https://github.com/your-username/azure-api-terraform.git
+cd azure-api-terraform
 ```
 
-## :memo: License ##
+### 2. Create a service principal in Azure and set the following secrets in your GitHub repository settings:
 
-This project is under license from MIT. For more details, see the [LICENSE](LICENSE.md) file.
+- `ARM_CLIENT_ID`: Azure Service Principal Client ID
+- `ARM_CLIENT_SECRET`: Azure Service Principal Client Secret
+- `ARM_SUBSCRIPTION_ID`: Azure Subscription ID
+- `ARM_TENANT_ID`: Azure Tenant ID
 
+### 3. Customize the Terraform configuration in the `infra` folder according to your requirements.
+```
 
-Made with :heart: by <a href="https://github.com/{{YOUR_GITHUB_USERNAME}}" target="_blank">{{YOUR_NAME}}</a>
+Workflow
+The GitHub Actions workflow is defined in .github/workflows/main.yml. It performs the following steps:
 
-&#xa0;
+Set up the environment with necessary tools (Terraform, Azure CLI).
+Authenticate with Azure using the service principal.
+Run Terraform commands to plan and apply the infrastructure changes.
+The workflow is triggered on every push to the main branch.
 
-<a href="#top">Back to top</a>
+Contributing
+Feel free to contribute to this project by opening issues or creating pull requests. Your feedback and contributions are highly appreciated.
+
+License
+This project is licensed under the MIT License.
