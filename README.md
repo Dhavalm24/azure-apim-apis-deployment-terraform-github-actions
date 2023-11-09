@@ -63,6 +63,7 @@ cd azure-api-terraform
 | Row 1, Col 1    | Row 1, Col 2    | Row 1, Col 3    |
 | Row 2, Col 1    | Row 2, Col 2    | Row 2, Col 3    |
 | Row 3, Col 1    | Row 3, Col 2    | Row 3, Col 3    |
+| Row 4, Col 1    | Row 4, Col 2    | Row 4, Col 3 this is test    |
 
 
 The GitHub Actions workflow is defined in .github/workflows/main.yml. It performs the following steps:
