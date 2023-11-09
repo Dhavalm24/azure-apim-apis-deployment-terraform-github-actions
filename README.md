@@ -56,11 +56,11 @@ cd azure-api-terraform
 
 ### 3. Customize the Terraform configuration in the `infra` folder according to your requirements.
 
-### 4 .Workflow.
+### 4. Workflow.
 
 | Column 1 Header | Column 2 Header | Column 3 Header |
 |-----------------|-----------------|-----------------|
-| Row 1, Col 1    | Row 1, Col 2    | Row 1, Col 3    |
+| Row 1, Col 1    | Row 1, Col 2    | **Row** 1, Col 3    |
 | Row 2, Col 1    | Row 2, Col 2    | Row 2, Col 3    |
 | Row 3, Col 1    | Row 3, Col 2    | Row 3, Col 3    |
 | Row 4, Col 1    | Row 4, Col 2    | Row 4, Col 3 this is test    |
