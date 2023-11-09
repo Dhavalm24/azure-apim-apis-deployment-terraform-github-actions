@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "businessUnitTag":{
+      "value": "DEV-VNET"
+    },
+    "ProjectNameTag": {
+      "value": "Omega"
+    },
+    "LOBTag": {
+      "value": "DS"
+    },
+    "COBTag": {
+      "value": "TS"
+    },
+    "SoldToCodeTag": {
+      "value": "1005278"
+    },
+    "IsDREnabledTag": {
+      "value": true
+    },
+    "blobConnectionName": {
+      "value": "api-blob-001"
+    },
+    "blobAccountName": {
+      "value": "blobAccountName_value"
+    },
+    "blobAccessKey": {
+      "value": "blobAccessKey_value"
+    },
+    "objectId": {
+      "value": "objectid_value"
+    },
+    "location": {
+      "value": "westeurope"
+    },
+    "tenantId": {
+      "value": "tenantid_value"
+    },
+    "connectionsName": {
+      "value": "connectionsname_value"
+    }
+  }
+}

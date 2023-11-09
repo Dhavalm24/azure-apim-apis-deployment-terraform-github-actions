@@ -1,0 +1,89 @@
+name: Create Api Connections for Blob
+on:
+ workflow_dispatch:
+    inputs:
+      API_Folder:
+        description: "Name of the API folder"
+        required: true
+      LA_NAME:
+        description: "Logic App Name"
+        required: true
+      resourceGroupName:
+        description: 'Resource group name'
+        required: false
+      environment:
+        type: choice
+        description: "Choose the environment"
+        options:
+          - DEV
+          - UAT
+          - PRD
+          - DR
+          - DEV-VNET 
+          - UAT-VNET
+          - PRD-VNET
+          - DR-VNET
+        required: true
+      commitid:
+        required: false
+        type: string
+        description: "Commit# to deploy"
+      suffix:    
+        description: "Secret suffix"    
+        type: string    
+        required: true
+jobs:
+  DeployConnections:
+    runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+    environment: ${{ github.event.inputs.environment}}
+    env:
+      ARM_CLIENT_ID: ${{ secrets.client_id }}
+      ARM_CLIENT_CERTIFICATE_PASSWORD: ${{ secrets.client_certificate_password }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
+      ARM_TENANT_ID: ${{ secrets.tenant_id }}
+      ARM_CERT_THUMBPRINT: ${{ secrets.cert_thumbprint }}
+      ARM_OBJECTID: ${{ github.event.inputs.objectId }}
+      SECRET_SUFFIX: ${{ github.event.inputs.suffix}} 
+      ARM_KEYVAULT: ${{ secrets.ARM_KEYVAULT }}
+      ARM_API: ${{ github.event.inputs.API_Folder }}
+
+    defaults:
+      run: 
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.commitid }}
+      - name: Check Az Login
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+      - name: Check Login and Create parameters json file
+        run: | 
+
+            Connect-AzAccount -ServicePrincipal -ApplicationId "${{env.ARM_CLIENT_ID}}" -Tenant "${{env.ARM_TENANT_ID}}" -CertificateThumbprint "${{env.ARM_CERT_THUMBPRINT}}"
+
+            $path="./deployments/azblob/${{env.ARM_API}}/parameters.${{github.event.inputs.environment}}.json"
+            $json=(Get-Content $path)|ConvertFrom-Json
+            $connection=$json.parameters.blobConnectionName.value
+
+            $LA_OBJ_ID= (az resource show --name "${{github.event.inputs.LA_NAME}}" --resource-group "${{github.event.inputs.resourceGroupName}}" --resource-type "Microsoft.Web/sites" --query "identity.principalId") -replace '"',''
+            $blobAccount =  az keyvault secret show --vault-name "${{env.ARM_KEYVAULT}}" --name "blobAccountName-${{env.SECRET_SUFFIX}}" --query value -o tsv
+            $blobAccessKey =  az keyvault secret show --vault-name "${{env.ARM_KEYVAULT}}" --name "blobAccessKey-value-${{env.SECRET_SUFFIX}}" --query value -o tsv
+            (Get-Content $path).Replace("blobAccountName_value", $blobAccount) | Set-Content $path      
+            (Get-Content $path).Replace("blobAccessKey_value", $blobAccessKey) | Set-Content $path 
+            (Get-Content $path).Replace("objectid_value", "$LA_OBJ_ID") | Set-Content $path
+            (Get-Content $path).Replace("tenantid_value", "${{env.ARM_TENANT_ID}}") | Set-Content $path
+            (Get-Content $path).Replace("connectionsname_value", "$connection/$LA_OBJ_ID") | Set-Content $path
+
+      - name: Check Az Login
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+      #    enable-AzPSSession: true   
+      - uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ env.ARM_SUBSCRIPTION_ID }}
+          resourceGroupName: ${{github.event.inputs.resourceGroupName}}
+          template: 'deployments/azblob/${{env.ARM_API}}/template.json'
+          parameters: 'deployments/azblob/${{env.ARM_API}}/parameters.${{github.event.inputs.environment}}.json'
