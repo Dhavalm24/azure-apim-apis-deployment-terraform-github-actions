@@ -9,9 +9,6 @@ on:
           - DEV
           - UAT
           - PRD
-          - DEV-VNET 
-          - UAT-VNET
-          - PRD-VNET
         required: true
       FunctionAppFolder:
         description: "Name of the Function App Folder"
@@ -23,7 +20,7 @@ on:
 
 jobs:
   DeployFunctionApp:
-    runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+    runs-on: [self-hosted"]
     environment: ${{ github.event.inputs.environment}}
     env:
       ARM_CLIENT_ID: ${{ secrets.client_id }}

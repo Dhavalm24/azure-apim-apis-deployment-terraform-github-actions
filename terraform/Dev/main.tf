@@ -1,3 +1,6 @@
+
+
+#Create a Product or Multiple Products and Map a Product Policy#
 module "api-product-api-demo-free" {
   source              = "./modules/apim-api/apim-product"
   apim_name           = var.apim_name
@@ -20,16 +23,17 @@ module "api-product-api-demo-paid" {
   product_xml_content = "./Dev/api-product-policy/api-demo-paid.xml"
 }
 
+#Create a Simple API and associate Mulitple Operations and Map to single Product or Multiple Products#
 module "api-demo" {
   source              = "./modules/apim-api/apim-apis"
   apim_name           = var.apim_name
   resource_group_name = var.apim_resource_group
-  api_name            = "LA-AIS-GF-NSD-API-DEMO-001"
-  api_display_name    = "LA-AIS-GF-NSD-API-DEMO-001"
+  api_name            = "LA-API-DEMO-001"
+  api_display_name    = "LA-API-DEMO-001"
   api_path            = "api/api-demo"
   revision            = "1"
   # api_service_url = ""
-  product_id = [module.api-product-api-demo-free.product_id]
+  product_id = [module.api-product-api-demo-free.product_id]    #Use comma-separator to Map Multiple Products#
   api-operations = [
     {
       api_operation_name        = "Get-All"
@@ -66,6 +70,8 @@ module "api-demo" {
       request = []
     }
   ]
+
+  #Associate Multiple Operations Policy to API Operations#
   operation-policies = [
     {
       operation_id          = "Get-All"
@@ -76,23 +82,27 @@ module "api-demo" {
       operation_xml_content = "./Dev/api-operation-policy/api-demo-post.xml"
     }
   ]
+
+  #Associate API Policy#
   api_policy      = true
   api_xml_content = "./Dev/api-policy/api-demo.xml"
+
+  #Named Value Pair Creation#
   named_value = [
     {
-      name         = "NV-AIS-GF-NSD-API-DEMO-001"
-      display_name = "NV-AIS-GF-NSD-API-DEMO-001"
+      name         = "NV-API-DEMO-001"
+      display_name = "NV-API-DEMO-001"
       secret       = true
       value        = null
       value_from_key_vault = [
         {
-          secret_id = "https://kv-ais-ent-dev-omega-003.vault.azure.net/secrets/Alpha-Paid-Subs22PrimaryKey"
+          secret_id = "https://<Key-vault-name>.azure.net/secrets/<secret-name>"
         }
       ]
     },
     {
-      name                 = "NV-AIS-GF-NSD-API-DEMO-002"
-      display_name         = "NV-AIS-GF-NSD-API-DEMO-002"
+      name                 = "NV-API-DEMO-002"
+      display_name         = "NV-API-DEMO-002"
       secret               = true
       value                = "test"
       value_from_key_vault = []
@@ -110,6 +120,8 @@ module "product-api" {
   #group_names         = ["administrators", "test-product-group"]
 }
 
+
+#Example of Two API Creation in API Version Set, API Operations along with Request and Response Header,  API Operations Tags #
 module "product-api-v1" {
   source              = "./modules/apim-api/apim-product"
   apim_name           = var.apim_name
@@ -123,8 +135,8 @@ module "api-demo-v1" {
   source              = "./modules/apim-api/apim-apis"
   apim_name           = var.apim_name
   resource_group_name = var.apim_resource_group
-  api_name            = "LA-AIS-GF-NSD-API-DEMO-v1"
-  api_display_name    = "LA-AIS-GF-NSD-API-DEMO-v1"
+  api_name            = "LA-API-DEMO-v1"
+  api_display_name    = "LA-API-DEMO-v1"
   api_description     = "Sample Demo API"
   api_path            = "products"
   revision            = "1"
@@ -261,6 +273,9 @@ module "api-demo-v1" {
       operation_xml_content = "./Dev/api-operation-policy/RetrieveresourcebyID.xml"
     }
   ]
+
+
+  #API Operation Tags#
   api_operation_tag = [
     {
       index        = 1
@@ -299,10 +314,12 @@ module "api-demo-v1" {
       display_name = "Complex"
     }
   ]
+
+  #API Tags#
   api_tag = [
     {
       index = 1
-      name  = "StandaloneProxy"
+      name  = "Low"
     },
     {
       index = 2
@@ -310,12 +327,14 @@ module "api-demo-v1" {
     },
     {
       index = 3
-      name  = "NSDSoldToCode"
+      name  = "High"
     }
   ]
-  enable_api_version = true
+  enable_api_version = true   
   api_version        = "V1"
   api_version_set_id = module.api-version-set-demo-v1.api_version_set_id
+
+  #API Schema Defination#
   api-schema = [
     {
       api_schema_id       = "ProductStatus"
@@ -336,8 +355,8 @@ module "api-demo-v2" {
   source              = "./modules/apim-api/apim-apis"
   apim_name           = var.apim_name
   resource_group_name = var.apim_resource_group
-  api_name            = "LA-AIS-GF-NSD-API-DEMO-v2"
-  api_display_name    = "LA-AIS-GF-NSD-API-DEMO-v2"
+  api_name            = "LA-API-DEMO-v2"
+  api_display_name    = "LA-API-DEMO-v2"
   api_path            = "products"
   revision            = "1"
   product_id          = [module.product-api.product_id, module.product-api-v1.product_id]
@@ -456,6 +475,7 @@ module "api-version-set-demo-v1" {
 }
 
 
+#Import Swagger API in APIM#
 module "swagger-api" {
   source              = "./modules/apim-api/apim-apis"
   apim_name           = var.apim_name
@@ -469,7 +489,7 @@ module "swagger-api" {
   api_import = [{
 
     content_format = "swagger-json"
-    content_value  = file("./Dev/api-operation-policy/petstoreswagger.json")
+    content_value  = file("./Dev/api-import/petstoreswagger.json")
     wsdl_selector  = null
     }
   ]
@@ -478,6 +498,8 @@ module "swagger-api" {
 
 }
 
+
+#Import a SOAP API in APIM#
 module "soap-api" {
   source              = "./modules/apim-api/apim-apis"
   apim_name           = var.apim_name

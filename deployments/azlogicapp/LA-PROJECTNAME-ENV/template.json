@@ -11,55 +11,13 @@
         "resourceGroup": {
             "type": "string",
             "metadata": {
-                "description": "Resource Group for Logic App"
+                "description": "Resource Group for Function App"
             }
         },
-        "businessUnitTag": {
+        "Tags": {
             "type": "string",
             "metadata": {
-                "description": "(Required)Business unit"
-            }
-        },
-        "ProjectNameTag": {
-            "type": "string",
-            "metadata": {
-                "description": "(Required)Project Name"
-            }
-        },
-        "LOBTag": {
-            "type": "string",
-            "metadata": {
-                "description": "(Required)LOB"
-            }
-        },
-        "COBTag": {
-            "type": "string",
-            "metadata": {
-                "description": "(Required)COB"
-            }
-        },
-        "SoldToCodeTag": {
-            "type": "string",
-            "metadata": {
-                "description": "(Required)SoldToCode"
-            }
-        },
-        "IsDREnabledTag": {
-            "type": "bool",
-            "metadata": {
-                "description": "(Required)If Application is DR enabled"
-            }
-        },
-        "AISPatternTag": {
-            "type": "string",
-            "metadata": {
-                "description": "(Required) Description of the deployment pattern. Possible values can be a combination of C2C/C2O/O2O/O2C"
-            }
-        },
-        "AppComplexity": {
-            "type": "string",
-            "metadata": {
-                "description": "(Required) AppComplexity can be either Simple, Medium, Complex or SuperComplex"
+                "description": "(Required)Provide the Tag value"
             }
         },
         "subscriptionId": {
@@ -68,30 +26,16 @@
                 "description": "Subscription Id - Autopopulated from pipeline"
             }
         },
-        "LOB": {
+        "UseCase": {
             "type": "string",
-            "defaultValue": "DS",
-            "minLength": 1,
-            "maxLength": 2,
             "metadata": {
-                "description": "Down steam name"
+            "description": "Use-Case of Logic App"
             }
         },
-        "COB": {
+        "numeric-suffix": {
             "type": "string",
-            "defaultValue": "TS",
-            "minLength": 2,
-            "metadata": {
-                "description": "Class of business"
-            }
-        },
-        "project-suffix": {
-            "type": "string",
-            "defaultValue": "Cloud",
-            "minLength": 1,
-            "maxLength": 13,
-            "metadata": {
-                "description": "Project Suffix along with numeric value. Example: OMEGA-001"
+                        "metadata": {
+                "description": "Numeric Suffic. Example: -01"
             }
         },
         "location": {
@@ -237,7 +181,7 @@
         }
     },
     "variables": {
-        "sitesLogicAppName": "[concat('LA-','AIS-',parameters('LOB'),'-' ,parameters('COB'),'-' ,parameters('env'),'-' ,parameters('project-suffix'))]"
+        "sitesLogicAppName": "[concat('LA-',parameters('UseCase'),'-' ,parameters('env'),'-' ,parameters('numeric-suffix'))]"
     },
     "resources": [
         {
@@ -247,14 +191,7 @@
             "kind": "functionapp,workflowapp",
             "location": "[parameters('location')]",
             "tags": {
-                "business-unit": "[parameters('businessUnitTag')]",
-                "project-name": "[parameters('ProjectNameTag')]",
-                "LOB": "[parameters('LOBTag')]",
-                "COB": "[parameters('COBTag')]",
-                "Sold To Code": "[parameters('SoldToCodeTag')]",
-                "IsDREnabled": "[parameters('IsDREnabledTag')]",
-                "AISPattern": "[parameters('AISPatternTag')]",
-                "AppComplexity": "[parameters('AppComplexity')]"
+                "Tags": "[parameters('Tags')]"
             },
             "properties": {
                 "name": "[variables('sitesLogicAppName')]",
@@ -365,12 +302,7 @@
             "name": "[parameters('storageAccountName')]",
             "location": "[parameters('location')]",
             "tags": {
-                "business-unit": "[parameters('businessUnitTag')]",
-                "project-name": "[parameters('ProjectNameTag')]",
-                "LOB": "[parameters('LOBTag')]",
-                "COB": "[parameters('COBTag')]",
-                "Sold To Code": "[parameters('SoldToCodeTag')]",
-                "IsDREnabled": "[parameters('IsDREnabledTag')]"
+                "Tags": "[parameters('Tags')]"
             },
             "sku": {
                 "name": "Standard_LRS"

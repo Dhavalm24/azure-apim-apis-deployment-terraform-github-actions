@@ -3,8 +3,8 @@
     <inbound>
         <base />
         <!-- DO NOT MODIFY THIS SECTION -->
-        <set-backend-service backend-id="BE--LA-AIS-GF-NSD-API-DEMO" />
-        <rewrite-uri template="{{NV--LA-AIS-GF-NSD-API-DEMO--wf-get-all}}" />
+        <set-backend-service backend-id="BE--$$laname$$" />
+        <rewrite-uri template="{{NV--$$laname$$}--$$workflowname$$}}" />
         <!--Please add any custom policies below this-->   
             </inbound>
     <backend>

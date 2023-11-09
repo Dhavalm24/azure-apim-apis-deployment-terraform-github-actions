@@ -14,10 +14,10 @@
                 "description": "Resource Group for Function App"
             }
         },
-        "businessUnitTag": {
+        "Tags": {
             "type": "string",
             "metadata": {
-                "description": "(Required)Business unit"
+                "description": "(Required)Provide the Tag value"
             }
         },
         "subscriptionId": {
@@ -26,66 +26,16 @@
                 "description": "Subscription Id - Autopopulated from pipeline"
             }
         },
-        "LOB": {
-            "type": "string",
-            "defaultValue": "DS",
-            "minLength": 1,
-            "maxLength": 2,
-            "metadata": {
-                "description": "Down steam name"
-            }
-        },
-        "COB": {
-            "type": "string",
-            "defaultValue": "TS",
-            "minLength": 2,
-            "metadata": {
-                "description": "Class of business"
-            }
-        },
-        "project-suffix": {
-            "type": "string",
-            "defaultValue": "Cloud",
-            "minLength": 1,
-            "maxLength": 13,
-            "metadata": {
-                "description": "Project Suffix along with numeric value. Example: OMEGA-001"
-            }
-        },
-        "LOBTag": {
+        "UseCase": {
             "type": "string",
             "metadata": {
-                "description": "(Required)LOB"
+                "description": "Use-Case of Function App"
             }
         },
-        "COBTag": {
+        "numeric-suffix": {
             "type": "string",
             "metadata": {
-                "description": "(Required)COB"
-            }
-        },
-        "SoldToCodeTag": {
-            "type": "string",
-            "metadata": {
-                "description": "(Required)SoldToCode"
-            }
-        },
-        "IsDREnabledTag": {
-            "type": "bool",
-            "metadata": {
-                "description": "(Required)If Application is DR enabled"
-            }
-        },
-        "AISPatternTag": {
-            "type": "string",
-            "metadata": {
-                "description": "(Required) Description of the deployment pattern. Possible values can be a combination of C2C/C2O/O2O/O2C"
-            }
-        },
-        "AppComplexity": {
-            "type": "string",
-            "metadata": {
-                "description": "(Required) AppComplexity can be either Simple, Medium, Complex or SuperComplex"
+                "description": "Numeric Suffic. Example: -01"
             }
         },
         "location": {
@@ -98,7 +48,7 @@
             "type": "bool",
             "defaultValue": true,
             "metadata": {
-                "description": "(Optional) If app enabled?"
+                "description": "(Optional) Is app enabled?"
             }
         },
         "IsAppRunning": {
@@ -233,7 +183,7 @@
     },
     "variables": {
         "isReserved": "[if(equals(parameters('functionPlanOS'), 'Linux'), true(), false())]",
-        "sitesFunctionAppName": "[concat('FA-','AIS-',parameters('LOB'),'-' ,parameters('COB'),'-' ,parameters('env'),'-' ,parameters('project-suffix'))]"
+        "sitesFunctionAppName": "[concat('FA-',parameters('UseCase'),'-' ,parameters('env'),'-' ,parameters('numeric-suffix'))]"
     },
     "resources": [
         {
@@ -243,13 +193,7 @@
             "name": "[parameters('storageAccountName')]",
             "location": "[parameters('location')]",
             "tags": {
-                "business-unit": "[parameters('businessUnitTag')]",
-                "LOB": "[parameters('LOBTag')]",
-                "COB": "[parameters('COBTag')]",
-                "Sold To Code": "[parameters('SoldToCodeTag')]",
-                "IsDREnabled": "[parameters('IsDREnabledTag')]",
-                "AISPattern": "[parameters('AISPatternTag')]",
-                "AppComplexity": "[parameters('AppComplexity')]"
+                "Tags": "[parameters('Tags')]"
             },
             "sku": {
                 "name": "Standard_LRS"
@@ -328,13 +272,7 @@
                 "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
             ],
             "tags": {
-                "business-unit": "[parameters('businessUnitTag')]",
-                "LOB": "[parameters('LOBTag')]",
-                "COB": "[parameters('COBTag')]",
-                "Sold To Code": "[parameters('SoldToCodeTag')]",
-                "IsDREnabled": "[parameters('IsDREnabledTag')]",
-                "AISPattern": "[parameters('AISPatternTag')]",
-                "AppComplexity": "[parameters('AppComplexity')]"
+                "Tag": "[parameters('Tags')]"
             },
             "identity": {
                 "type": "SystemAssigned"

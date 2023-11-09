@@ -9,11 +9,6 @@ on:
           - DEV
           - UAT
           - PRD
-          - DR
-          - DEV-VNET
-          - UAT-VNET
-          - PRD-VNET
-          - DR-VNET
         required: true
       resourceGroupName:
         description: "Resource Group Name"
@@ -36,16 +31,11 @@ on:
         type: boolean
         default: false
         description: "set to true if the app needs an API connection"
-      processApiMetadata:
-        required: true
-        type: boolean
-        default: false
-        description: "Enable api metadata Publish (Default On)"
-      enableAISDeployment:
+      enableDeployment:
         required: true
         type: boolean
         default: true
-        description: "Enable AIS Deployment (Default On)"
+        description: "Enable Deployment (Default On)"
       connectionName:
         required: false
         type: string
@@ -67,21 +57,9 @@ env:
   APIM_RG : ${{ vars.APIM_RG }}
   RUNNER_USER : ${{ secrets.RUNNER_USER }}
 jobs:
-  ProcessApiMetadata:  
-    if: ${{github.event.inputs.processApiMetadata == 'true'}}
-    uses: sede-x/AIS-ENT-API-REUSE-CATALOGUE/.github/workflows/processApiMetadataJson.V1.yml@main
-    secrets: inherit
-    with: 
-      repositoryName: ${{github.event.repository.full_name}}
-      appPath: ${{github.event.inputs.appname}}
-      appName: ${{github.event.inputs.logicAppName}}
-      operation: 'insert or update' 
-      environment: ${{github.event.inputs.environment}}
-      processApiMetadata: ${{github.event.inputs.processApiMetadata}}
   Build:
-    runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
-    if: ${{github.event.inputs.enableAISDeployment == 'true' && always()}}
-    needs: ProcessApiMetadata
+    runs-on: [self-hosted]
+    if: ${{github.event.inputs.enableDeployment == 'true' && always()}}
     environment: ${{ github.event.inputs.environment}}
     env:
       RG_CONNECTION: ${{ github.event.inputs.connectionRg}}
@@ -187,8 +165,8 @@ jobs:
           retention-days: 1
   Deploy:
     name: Deploy
-    runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
-    if: ${{github.event.inputs.enableAISDeployment == 'true' && always() && needs.Build.result == 'success' }}
+    runs-on: [self-hosted]
+    if: ${{github.event.inputs.enableDeployment == 'true' && always() && needs.Build.result == 'success' }}
     needs: [Build]
     environment: ${{ github.event.inputs.environment}}
     defaults:
@@ -289,15 +267,3 @@ jobs:
            {
            az functionapp stop --name ${{ github.event.inputs.logicAppName }} --resource-group ${{ github.event.inputs.resourceGroupName }}
            }
-  abortApiMetadata:    
-      uses: sede-x/AIS-ENT-API-REUSE-CATALOGUE/.github/workflows/processApiMetadataJson.V1.yml@main
-      secrets: inherit    
-      needs: [ProcessApiMetadata,Build,Deploy]
-      if: always() && (needs.Build.result == 'failure' || needs.Deploy.result == 'failure') && (needs.ProcessApiMetadata.result != 'skipped')
-      with: 
-        repositoryName: ${{github.event.repository.full_name}}
-        appPath: ${{github.event.inputs.appname}}
-        operation: delete 
-        appName: ${{needs.ProcessApiMetadata.outputs.InsertOrUpdate}}
-        environment: ${{github.event.inputs.environment}}
-        processApiMetadata: ${{github.event.inputs.processApiMetadata}}

@@ -10,11 +10,6 @@ on:
           - DEV
           - UAT
           - PRD
-          - DR
-          - DEV-VNET 
-          - UAT-VNET
-          - PRD-VNET
-          - DR-VNET
         required: true
       RG_FunctionApp:
         description: "Resource Group Name"
@@ -27,16 +22,11 @@ on:
         type: string
         default: app1
         description: "App Folder name"
-      processApiMetadata:
+      enableDeployment:
         required: true
         type: boolean
         default: true
-        description: "Enable api metadata Publish (Default On)"
-      enableAISDeployment:
-        required: true
-        type: boolean
-        default: true
-        description: "Enable AIS Deployment (Default On)"
+        description: "Enable Deployment (Default On)"
 
 env:
   DOTNET_VERSION: '6.0'
@@ -55,21 +45,9 @@ defaults:
     shell: bash
 
 jobs:
-    ProcessApiMetadata:  
-      if: ${{github.event.inputs.processApiMetadata == 'true'}}
-      uses: sede-x/AIS-ENT-API-REUSE-CATALOGUE/.github/workflows/processApiMetadataJson.V1.yml@main-development
-      secrets: inherit
-      with: 
-        repositoryName: ${{github.event.repository.full_name}}
-        appPath: ${{github.event.inputs.appname}}
-        appName: ${{github.event.inputs.logicAppName}}
-        operation: 'insert or update' 
-        environment: ${{github.event.inputs.environment}}
-        processApiMetadata: ${{github.event.inputs.processApiMetadata}}
     build-az-function:
-      runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+      runs-on: [self-hosted]
       if: ${{github.event.inputs.enableAISDeployment == 'true' && always()}}
-      needs: ProcessApiMetadata
       environment: ${{ github.event.inputs.environment}}  
       steps:
        - name: 'Checking out source code'
@@ -100,7 +78,7 @@ jobs:
 
     deploy-az-function:
       needs: [build-az-function]
-      runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+      runs-on: [self-hosted]
       if: ${{github.event.inputs.enableAISDeployment == 'true' && always() && needs.build-az-function.result == 'success' }}
       environment: ${{ github.event.inputs.environment}}
       env:
@@ -190,15 +168,3 @@ jobs:
            {
            az functionapp stop --name ${{ github.event.inputs.FunctionApp_NAME }} --resource-group ${{ github.event.inputs.RG_FunctionApp }}
            }
-    abortApiMetadata:    
-      uses: sede-x/AIS-ENT-API-REUSE-CATALOGUE/.github/workflows/processApiMetadataJson.V1.yml@main-development
-      secrets: inherit    
-      needs: [ProcessApiMetadata,build-az-function,deploy-az-function]
-      if: always() && (needs.build-az-function.result == 'failure' || needs.deploy-az-function.result == 'failure') && (needs.ProcessApiMetadata.result != 'skipped')
-      with: 
-        repositoryName: ${{github.event.repository.full_name}}
-        appPath: ${{github.event.inputs.appname}}
-        operation: delete 
-        appName: ${{needs.ProcessApiMetadata.outputs.InsertOrUpdate}}
-        environment: ${{github.event.inputs.environment}}
-        processApiMetadata: ${{github.event.inputs.processApiMetadata}}

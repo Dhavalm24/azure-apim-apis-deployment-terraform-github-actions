@@ -6,70 +6,46 @@
             "value": "DEV"
         },
         "resourceGroup":{
-            "value": "<<IDEDeveloper>>"
+            "value": "<<RG-Name>>"
         },
-        "businessUnitTag": {
-            "value": "<<IDEDeveloper>>"
-        },
-        "ProjectNameTag":{
-            "value": "<<IDEDeveloper>>"
-        },
-        "LOBTag":{
-            "value": "<<IDEDeveloper>>"
-        },
-        "COBTag":{
-            "value": "<<IDEDeveloper>>"
-        },
-        "SoldToCodeTag":{
-            "value": "<<IDEDeveloper>>"
-        },
-        "IsDREnabledTag": {
-            "value": "<<IDEDeveloper>>"
-        },
-        "AISPatternTag": {
-            "value": "<<IDEDeveloper>>"
-        },
-        "AppComplexity": {
-            "value": "<<IDEDeveloper>>"
+        "Tags": {
+            "value": "<<Tag-Value"
         },
         "IsAppRunning": {
             "value": "Running"
         },
-        "LOB": {
-            "value": "<<IDEDeveloper>>"
+        "UseCase": {
+            "value": "<<Use-Case-Value>>"
         },
-        "COB": {
-            "value": "<<IDEDeveloper>>"
-        },
-        "project-suffix": {
-            "value": "<<IDEDeveloper>>"
+        "numeric-suffix": {
+            "value": "<<Function-App-No.>>"
         },
         "location": {
             "value": "westeurope"
         },
         "storageAccountName": {
-            "value": "<<IDEDeveloper>>"
+            "value": "<<storage-accoutn-name>>"
         },
         "storageAccountRG": {
-            "value": "<<IDEDeveloper>>"
+            "value": "<<storage-account-rg>>"
         },
         "newOrExisting": {
             "value": "storage_newOrExisting"
         },
         "hostingPlanName": {
-            "value": "<<IDEDeveloper>>"
+            "value": "<<App-Service-Plan-Name>>"
         },
         "serverFarmResourceGroup": {
-            "value": "<<IDEDeveloper>>"
+            "value": "<<App-Service-Plan-RG>>"
         },
         "ASE_ResourceGroup": {
-            "value": "RG-AIS-ENT-DEV-002"
+            "value": "<<App-Service-Environment-RG>>"
         },
         "ASE_Name": {
-            "value": "ASE-AIS-ENT-DEV-002"
+            "value": "<<App-Service-Environment-Name>>"
         },
         "APPINSIGHTS_INSTRUMENTATIONKEY": {
-            "value": "27054b0d-b491-430b-b94b-b6abeeb0fb10"
+            "value": "<<Application-Insights-Key>>"
         },
         "subscriptionId": {
             "value": "subscriptionId_value"
@@ -84,20 +60,20 @@
             "value": "dotnet"
         },
         "virtualNetworkResourceGroup": {
-            "value": "RG-AIS-ENT-DEV-002"
+            "value": "<<Virtual-Network-RG>>"
         },
         "virtualNetworkName": {
-            "value": "VNET-AIS-10.0.0.0-16"
+            "value": "<<Virtual-Network-Name>>"
         },
         "subnetNames": {
             "value": [
                 {
-                    "subnetName": "SN-AIS-ENT-APIM-DEV-001",
+                    "subnetName": "<<Subnet-Name-01>>",
                     "action": "Allow",
                     "ignoreMissingVNetServiceEndpoint": true
                 },
                 {
-                    "subnetName": "SN-AIS-ENT-ASE-DEV-001",
+                    "subnetName": "<<Subnet-Name-02>>",
                     "action": "Allow",
                     "ignoreMissingVNetServiceEndpoint": true
                 }
@@ -109,12 +85,12 @@
         "ipSecurityRestrictions": {
             "value": [
                 {
-                    "ipAddress": "10.0.0.0/27",
+                    "ipAddress": "10.0.0.0/0",
                     "action": "Allow",
                     "tag": "Default",
                     "priority": 99,
-                    "name": "Allow APIM IP",
-                    "description": "Allow APIM IP"
+                    "name": "<<rule-Name>>",
+                    "description": "<<rule-description>>"
                 }
             ]
         },

@@ -9,9 +9,6 @@ on:
           - DEV
           - UAT
           - PRD
-          - DEV-VNET 
-          - UAT-VNET
-          - PRD-VNET
         required: true
       LogicAppFolder:
         description: "Name of the Logic App folder"
@@ -23,7 +20,7 @@ on:
 
 jobs:
   DeployLogicApp:
-    runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+    runs-on: [self-hosted"]
     environment: ${{ github.event.inputs.environment}}
     env:
       ARM_CLIENT_ID: ${{ secrets.client_id }}
@@ -67,7 +64,7 @@ jobs:
             if ($notPresent){
               New-AzResourceGroup -Name $ResourceGroupName -Location $Location -Tag @{"business-unit_value"=$Tag}
             }
-               
+            
       - name: Check Az Login
         uses: azure/login@v1
         with:

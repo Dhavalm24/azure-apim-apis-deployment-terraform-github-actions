@@ -9,15 +9,10 @@ on:
           - Dev
           - UAT
           - PRD
-          - Dev-VNET 
-          - UAT-VNET
-          - PRD-VNET
-          - DR
-          - DR-VNET
         required: true
 jobs:
   TerraformApply:
-    runs-on: [AIS-Test]
+    runs-on: [ubuntu-latest]
     environment: ${{ github.event.inputs.environment}}
     env:
       ARM_ENV: ${{github.event.inputs.environment}}
