@@ -2,46 +2,16 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "businessUnitTag": {
+    "Tags": {
       "type": "string",
       "metadata": {
           "description": "Tag value"
       }
     },
-    "ProjectNameTag": {
-      "type": "string",
-      "metadata": {
-        "description": "(Required)Project Name"
-      }
-    },
-    "LOBTag": {
-      "type": "string",
-      "metadata": {
-        "description": "(Required)LOB"
-      }
-    },
-    "COBTag": {
-      "type": "string",
-      "metadata": {
-        "description": "(Required)COB"
-      }
-    },
-    "SoldToCodeTag": {
-      "type": "string",
-      "metadata": {
-        "description": "(Required)SoldToCode"
-      }
-    },
-    "IsDREnabledTag": {
-      "type": "bool",
-      "metadata": {
-        "description": "(Required)If Application is DR enabled"
-      }
-    },
     "blobConnectionName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the SQL connection being created."
+        "description": "The name of the connection being created."
       }
     },
     "blobAccountName": {
@@ -91,7 +61,7 @@
       "apiVersion": "2018-07-01-preview",
       "location": "[parameters('location')]",
       "tags": {
-          "business-unit": "[parameters('businessUnitTag')]"
+          "tags": "[parameters('Tags')]"
       },
       "name": "[parameters('blobConnectionName')]",
       "kind": "V2",
@@ -119,7 +89,7 @@
       "name": "[parameters('connectionsName')]",
       "location": "[parameters('location')]",
       "tags": {
-        "business-unit": "[parameters('businessUnitTag')]"
+        "tags": "[parameters('Tags')]"
       },
       "dependsOn": [
           "[resourceId('Microsoft.Web/connections',parameters('blobConnectionName'))]"

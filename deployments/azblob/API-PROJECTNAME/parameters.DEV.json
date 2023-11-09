@@ -2,26 +2,11 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "businessUnitTag":{
-      "value": "DEV"
-    },
-    "ProjectNameTag": {
-      "value": "Omega"
-    },
-    "LOBTag": {
-      "value": "DS"
-    },
-    "COBTag": {
-      "value": "TS"
-    },
-    "SoldToCodeTag": {
-      "value": "1005278"
-    },
-    "IsDREnabledTag": {
-      "value": true
+    "Tags":{
+      "value": "<<Tag-Value>>"
     },
     "blobConnectionName": {
-      "value": "api-blob-001"
+      "value": "api-projectname"
     },
     "blobAccountName": {
       "value": "blobAccountName_value"
