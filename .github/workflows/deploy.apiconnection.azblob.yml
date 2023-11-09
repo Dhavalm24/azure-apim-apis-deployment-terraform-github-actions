@@ -18,11 +18,6 @@ on:
           - DEV
           - UAT
           - PRD
-          - DR
-          - DEV-VNET 
-          - UAT-VNET
-          - PRD-VNET
-          - DR-VNET
         required: true
       commitid:
         required: false
@@ -34,7 +29,7 @@ on:
         required: true
 jobs:
   DeployConnections:
-    runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+    runs-on: [self-hosted]
     environment: ${{ github.event.inputs.environment}}
     env:
       ARM_CLIENT_ID: ${{ secrets.client_id }}
@@ -42,7 +37,6 @@ jobs:
       ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
       ARM_TENANT_ID: ${{ secrets.tenant_id }}
       ARM_CERT_THUMBPRINT: ${{ secrets.cert_thumbprint }}
-      ARM_OBJECTID: ${{ github.event.inputs.objectId }}
       SECRET_SUFFIX: ${{ github.event.inputs.suffix}} 
       ARM_KEYVAULT: ${{ secrets.ARM_KEYVAULT }}
       ARM_API: ${{ github.event.inputs.API_Folder }}

@@ -9,9 +9,6 @@ on:
           - Dev
           - UAT
           - PRD
-          - Dev-VNET 
-          - UAT-VNET
-          - PRD-VNET
         required: true
       APIProductName:
         description: "Enter the Product ID to associate with the Subscription"
@@ -27,11 +24,6 @@ on:
           - SecondaryKey
           - BothTheKeys        
         description: "Regenerate Subscription Keys (Default Off)"
-      DeployToDR:
-        required: true
-        type: boolean
-        default: false
-        description: "Is subscription to be deployed in DR? (Default On)"
 
 env:
   ARM_CLIENT_ID: ${{ secrets.client_id }}
@@ -48,7 +40,7 @@ jobs:
 
   APIM_Subs_Create:
     name: Create a APIM Subscription and Associate with a Product
-    runs-on: [self-hosted, "AIS-${{github.event.inputs.environment}}"]
+    runs-on: [self-hosted]
     outputs:
       primary_key: ${{ steps.Addsubs.outputs.primary_key }}
       secondary_key: ${{ steps.Addsubs.outputs.secondary_key }}
@@ -140,80 +132,3 @@ jobs:
             }
             echo "primary_key=$global:primaryKey" >> "$env:GITHUB_OUTPUT"
             echo "secondary_key=$global:secondaryKey" >> "$env:GITHUB_OUTPUT"
-  APIM_Subs_Create_DR:
-    needs: APIM_Subs_Create
-    name: Create a APIM Subscription and Associate with a Product in DR
-    runs-on: [self-hosted, "AIS-DR"]
-    if: ${{github.event.inputs.environment == 'PRD' && github.event.inputs.DeployToDR == 'true'}}
-    environment: "DR"
-    env:
-      ARM_CLIENT_ID: ${{ secrets.client_id }}
-      ARM_CLIENT_CERTIFICATE_PASSWORD: ${{ secrets.client_certificate_password }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
-      ARM_TENANT_ID: ${{ secrets.tenant_id }}
-      ARM_CERT_THUMBPRINT: ${{ secrets.cert_thumbprint }}
-      ARM_KEYVAULT: ${{ secrets.ARM_KEYVAULT }}
-      APIM_NAME : ${{ vars.APIM_Name }}
-      APIM_RG : ${{ vars.APIM_RG }}
-      PRIMARY_KEY : ${{ needs.APIM_Subs_Create.outputs.primary_key }}
-      SECONDARY_KEY : ${{ needs.APIM_Subs_Create.outputs.secondary_key }}
-    defaults:
-      run: 
-        shell: pwsh
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Check Login
-        run: | 
-            Connect-AzAccount -ServicePrincipal -ApplicationId "${{env.ARM_CLIENT_ID}}" -Tenant "${{env.ARM_TENANT_ID}}" -CertificateThumbprint "${{env.ARM_CERT_THUMBPRINT}}"
-            Set-AzContext -Subscription "${{ env.ARM_SUBSCRIPTION_ID }}"
-      - name: Create a APIM Subscription and Associate with a Product in DR
-        id: Addsubs
-        run: |
-          $apimContext = New-AzApiManagementContext -ResourceId ((Get-AzApiManagement -ResourceGroupName ${{env.APIM_RG}} -Name ${{env.APIM_NAME}}).Id)
-          $subscription = New-AzApiManagementSubscription -Context $apimContext -Scope "/products/${{github.event.inputs.APIProductName}}" -Name ${{github.event.inputs.APISubsName}} -SubscriptionId ${{github.event.inputs.APISubsName}} -PrimaryKey ${{env.PRIMARY_KEY}} -SecondaryKey ${{env.SECONDARY_KEY}}  
-          $primaryKey = $subscription.PrimaryKey
-          $secondaryKey = $subscription.SecondaryKey
-          $primarySecretValue = ConvertTo-SecureString -String $primaryKey -AsPlainText -Force
-          $SecondaryKeyValue = ConvertTo-SecureString -String $secondaryKey -AsPlainText -Force
-          Set-AzKeyVaultSecret -VaultName "${{env.ARM_KEYVAULT}}" -Name ("${{github.event.inputs.APISubsName}}"+"--PrimaryKey") -SecretValue $primarySecretValue
-          Set-AzKeyVaultSecret -VaultName "${{env.ARM_KEYVAULT}}" -Name ("${{github.event.inputs.APISubsName}}"+"--SecondaryKey") -SecretValue $SecondaryKeyValue
-
-  APIM_Subs_Create_DRVNET:
-    needs: APIM_Subs_Create
-    name: Create a APIM Subscription and Associate with a Product in DR VNET
-    runs-on: [self-hosted, "AIS-DR-VNET"]
-    if: ${{github.event.inputs.environment == 'PRD-VNET' && github.event.inputs.DeployToDR == 'true'}} 
-    environment: "DR-VNET"
-    env:
-      ARM_CLIENT_ID: ${{ secrets.client_id }}
-      ARM_CLIENT_CERTIFICATE_PASSWORD: ${{ secrets.client_certificate_password }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
-      ARM_TENANT_ID: ${{ secrets.tenant_id }}
-      ARM_CERT_THUMBPRINT: ${{ secrets.cert_thumbprint }}
-      ARM_KEYVAULT: ${{ secrets.ARM_KEYVAULT }}
-      APIM_NAME : ${{ vars.APIM_Name }}
-      APIM_RG : ${{ vars.APIM_RG }}
-      PRIMARY_KEY : ${{ needs.APIM_Subs_Create.outputs.primary_key }}
-      SECONDARY_KEY : ${{ needs.APIM_Subs_Create.outputs.secondary_key }}
-    defaults:
-      run: 
-        shell: pwsh
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Check Login
-        run: | 
-            Connect-AzAccount -ServicePrincipal -ApplicationId "${{env.ARM_CLIENT_ID}}" -Tenant "${{env.ARM_TENANT_ID}}" -CertificateThumbprint "${{env.ARM_CERT_THUMBPRINT}}"
-            Set-AzContext -Subscription "${{ env.ARM_SUBSCRIPTION_ID }}"
-      - name: Create a APIM Subscription and Associate with a Product in DR
-        id: Addsubs
-        run: |
-          $apimContext = New-AzApiManagementContext -ResourceId ((Get-AzApiManagement -ResourceGroupName ${{env.APIM_RG}} -Name ${{env.APIM_NAME}}).Id)
-          $subscription = New-AzApiManagementSubscription -Context $apimContext -Scope "/products/${{github.event.inputs.APIProductName}}" -Name ${{github.event.inputs.APISubsName}} -SubscriptionId ${{github.event.inputs.APISubsName}} -PrimaryKey ${{env.PRIMARY_KEY}} -SecondaryKey ${{env.SECONDARY_KEY}}  
-          $primaryKey = $subscription.PrimaryKey
-          $secondaryKey = $subscription.SecondaryKey
-          $primarySecretValue = ConvertTo-SecureString -String $primaryKey -AsPlainText -Force
-          $SecondaryKeyValue = ConvertTo-SecureString -String $secondaryKey -AsPlainText -Force
-          Set-AzKeyVaultSecret -VaultName "${{env.ARM_KEYVAULT}}" -Name ("${{github.event.inputs.APISubsName}}"+"--PrimaryKey") -SecretValue $primarySecretValue
-          Set-AzKeyVaultSecret -VaultName "${{env.ARM_KEYVAULT}}" -Name ("${{github.event.inputs.APISubsName}}"+"--SecondaryKey") -SecretValue $SecondaryKeyValue
