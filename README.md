@@ -57,7 +57,14 @@ cd azure-api-terraform
 ### 3. Customize the Terraform configuration in the `infra` folder according to your requirements.
 ```
 
-Workflow
+### 4 .Workflow.
+
+| Name      | Age | Occupation    |
+|-----------|-----|---------------|
+| John      | 25  | Developer     |
+| Jane      | 30  | Designer      |
+| Bob       | 28  | Data Analyst  |
+
 The GitHub Actions workflow is defined in .github/workflows/main.yml. It performs the following steps:
 
 Set up the environment with necessary tools (Terraform, Azure CLI).
