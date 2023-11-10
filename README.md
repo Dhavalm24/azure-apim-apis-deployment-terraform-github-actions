@@ -34,16 +34,21 @@ Before you begin, make sure you have the following installed:
 │   ├── deploy.azlogicapp.yml                 # Workflow for Logic App Deployment 
 │   ├── deploy.Create_API_Sub.yml             # Workflow for Creating Subscription in Azure API Management Service and Storing Keys in Key Vault
 │   ├── deploy.function_withAPI.yml           # Workflow for function deployment in Azure Function App and creating named value pair and Backend in Azure API Managent Service
-│   ├── deploy.function.yml
-│   ├── deploy.workflow_withAPI.yml
-│   ├── deploy.workflow.yml
-│   ├── terraformApply.yml
-│   ├── terraformPlan.yml
-│   └── UpdateLAParameter.yml  
-├── infra                       # Terraform infrastructure code
-│   ├── main.tf                 # Main Terraform configuration
-│   ├── variables.tf            # Variables used in the configuration
-│   └── outputs.tf              # Output values from the configuration
+│   ├── deploy.function.yml                   # Workflow for function deployment in Azure Function App
+│   ├── deploy.workflow_withAPI.yml           # Workflow for Logic App workflow deployment in Azure Logic App and creating named value pair and Backend in Azure API Managent Service 
+│   ├── deploy.workflow.yml                   # Workflow for Logic App workflow deployment in Azure Logic App
+│   ├── terraformApply.yml                    # Workflow for applying the API deployment in Azure API Management service
+│   ├── terraformPlan.yml                     # Workflow to view the plan for API deployment in Azure API Management service
+│   └── UpdateLAParameter.yml                 # Workflow for deploying the Parameters for Logic App workflow
+├── apps                                      # Place the Logic App Workflows inside this folder
+│   └── hello                                 # Reference Logic App Workflow code
+├── deployments                               # Logic App, Function App and Connection ARM Templates Folder
+|   └── azblob                                # Pace all the BLOB Connection inside this Folder
+|       └── API-PROJECT-NAME                  # BLOB Connection Folder - (Replace the Folder Name as per requirement)
+|           ├── parameters.DEV.json           # Parametes file for Blob connection creation (This is for one environment -DEV, copy the same file and rename DEV to another enviroment eg. UAT/PROD to create BLOB connection in UAT/PROD environment.
+|           └── template.json                 # Template file for BLOB Connection
+|
+│   
 ├── src                         # Source code for the API
 │   └── app                     # API application code
 ├── README.md                   # Project documentation
