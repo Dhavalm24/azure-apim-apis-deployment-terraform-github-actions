@@ -59,7 +59,16 @@ Before you begin, make sure you have the following installed:
 │   └── Greetings                             # Reference .net Function code
 ├── terraform                                 # Terraform configuration folder
 │   └── Dev                                   # Environment Folder. (This is for one environment -DEV, copy the folder and rename DEV to another environment eg. UAT/PROD to create
-        └── api-import                        #
+|        └── api-import                       # Place the .json, wsdl files in this folder for importing the API
+|        └── api-operation-policy             # Place the API Operation Policies inside this folder
+|        └── api-policy                       # Place the API Policy inside this folder
+|        └── api-product-policy               # Place the API Product Policy inside this folder
+|        └── api-schema                       # Place the API schemas inside this folder
+|        └── apim-policy                      # Place the APIM Policy inside this folder
+|        ├── env.tfvars                       # Environmental Variables file
+|        ├── main.tf                          # Terraform configuration file for creating API, API Operation, Product, API tags, API Operation Tags, API Operation Request and reponse header, importing an API.
+|        └── variables.tf                     # Variables file         
+
 ├── src                         # Source code for the API
 │   └── app                     # API application code
 ├── README.md                   # Project documentation
