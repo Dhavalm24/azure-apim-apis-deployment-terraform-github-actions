@@ -22,7 +22,7 @@ Before you begin, make sure you have the following installed:
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 
 ## Architecture
-![Architecture](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/architecture/architecture.png)
+![Architecture](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/architecture/architecture.png)
 
 
 ## Folder Structure
