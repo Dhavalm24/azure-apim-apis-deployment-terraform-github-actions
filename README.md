@@ -103,7 +103,9 @@ The workflows utilizes GitHub Environments and Secrets to store the azure identi
 - `ARM_KEYVAULT`: Azure Key Vault
 - `RUNNER_USER`: Github Self Hosted Runner User Name
 
-  Create Below variables in 
+  Create Below variables
+- `APIM_NAME`: Azure API Management Service Name
+- `APIM_RG`: Azure API Management Service Resource Group
   
 ### 3. Customize the Terraform configuration in the `infra` folder according to your requirements.
 
