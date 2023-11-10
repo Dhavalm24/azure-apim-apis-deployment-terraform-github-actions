@@ -47,7 +47,10 @@ Before you begin, make sure you have the following installed:
 |       └── API-PROJECT-NAME                  # BLOB Connection Folder - (Replace the Folder Name as per requirement)
 |           ├── parameters.DEV.json           # Parametes file for Blob connection creation (This is for one environment -DEV, copy the same file and rename DEV to another enviroment eg. UAT/PROD to create BLOB connection in UAT/PROD environment.
 |           └── template.json                 # Template file for BLOB Connection
-|
+|   └── azfunctionapp                         # Place all the Function Apps inside this Folder
+|       └── FA-PROJECT-NAME                   # Function App Folder - (Replace the Folder Name as per requirement)
+|           ├── parameters.DEV.json           # Parametes file for Function App creation (This is for one environment -DEV, copy the same file and rename DEV to another enviroment eg. UAT/PROD to create BLOB connection in UAT/PROD environment.
+|           └── template.json                 # Template file for Function App
 │   
 ├── src                         # Source code for the API
 │   └── app                     # API application code
