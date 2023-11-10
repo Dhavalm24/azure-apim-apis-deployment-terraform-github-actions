@@ -7,6 +7,7 @@ This repository contains the necessary files and configurations to deploy an API
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
+- [Architecture](#architecture)
 - [Folder Structure](#folder-structure)
 - [Setup](#setup)
 - [Workflow](#workflow)
@@ -19,7 +20,9 @@ Before you begin, make sure you have the following installed:
 
 - [Terraform](https://www.terraform.io/downloads.html)
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
-- [GitHub Actions](https://docs.github.com/en/actions)
+
+## Architecture
+![Architecture](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/architecture/architecture.png)
 
 ## Folder Structure
 ```
