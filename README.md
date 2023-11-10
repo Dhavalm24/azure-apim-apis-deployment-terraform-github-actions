@@ -88,7 +88,7 @@ cd azure-apim-apis-deployment-terraform-github-actions
 ```
 
 ### 2. Create a service principal in Azure and set the following secrets in your GitHub repository settings:
-**Create GitHub Environment**
+**Create GitHub Environment:**
 The workflows utilizes GitHub Environments and Secrets to store the azure identity information. Create an environment named `Dev` by following these [instructions](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#environment-secrets)
 .
 - `ARM_CLIENT_ID`: Azure Service Principal Client ID
