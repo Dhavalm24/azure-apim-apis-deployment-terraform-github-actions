@@ -9,6 +9,7 @@ This repository contains the necessary files and configurations to deploy an API
 - [Prerequisites](#prerequisites)
 - [Architecture](#architecture)
 - [Folder Structure](#folder-structure)
+- [Getting Started](#gettingstarted)
 - [Setup](#setup)
 - [Workflow](#workflow)
 - [Contributing](#contributing)
@@ -107,7 +108,7 @@ The workflows utilizes GitHub Environments and Secrets to store the azure identi
 - `APIM_NAME`: Azure API Management Service Name
 - `APIM_RG`: Azure API Management Service Resource Group
   
-### 3. Customize the Terraform configuration in the `infra` folder according to your requirements.
+### 3. Getting Started.
 
 ### 4. Workflow.
 
