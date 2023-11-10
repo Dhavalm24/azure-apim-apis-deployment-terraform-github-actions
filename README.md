@@ -66,7 +66,7 @@ Before you begin, make sure you have the following installed:
 |        └── api-schema                       # Place the API schemas inside this folder
 |        └── apim-policy                      # Place the APIM Policy inside this folder
 |        ├── env.tfvars                       # Environmental Variables file
-|        ├── main.tf                          # Terraform configuration file for creating API, API Operation, Product, API tags, API Operation Tags, API Operation Request and reponse header, importing an API.
+|        ├── main.tf                          # Terraform configuration file for creating API, API Operation, API Version Set, API Product, API tags, API Operation Tags, API Operation Request and reponse header, importing an API.
 |        └── variables.tf                     # Variables file         
 
 ├── src                         # Source code for the API
