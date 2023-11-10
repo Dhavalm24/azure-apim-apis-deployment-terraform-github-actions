@@ -28,8 +28,19 @@ Before you begin, make sure you have the following installed:
 ## Folder Structure
 ```
 .
-├── .github/workflows           # GitHub Actions workflows
-│   └── main.yml                # Main workflow for deployment
+├── .github/workflows                                  # GitHub Actions workflows
+│   └── deploy.apiconnection.azblob.yml                # Workflow for BLOB Connection Deployment in Logic App
+    └── deploy.azfunctionapp.yml
+    └── deploy.azlogicapp.yml
+    └── deploy.Create_API_Sub.yml
+    └── deploy.function_withAPI.yml
+    └── deploy.function.yml
+    └── deploy.workflow_withAPI.yml
+    └── deploy.workflow.yml
+    └── terraformApply.yml
+    └── terraformPlan.yml
+    └── UpdateLAParameter.yml
+  
 ├── infra                       # Terraform infrastructure code
 │   ├── main.tf                 # Main Terraform configuration
 │   ├── variables.tf            # Variables used in the configuration
