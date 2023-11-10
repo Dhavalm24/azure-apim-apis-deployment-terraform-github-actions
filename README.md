@@ -24,6 +24,7 @@ Before you begin, make sure you have the following installed:
 ## Architecture
 ![Architecture](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/architecture/architecture.png)
 
+
 ## Folder Structure
 ```
 .
