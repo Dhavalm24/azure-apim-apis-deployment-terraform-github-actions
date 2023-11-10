@@ -75,8 +75,8 @@ Before you begin, make sure you have the following installed:
 |            └── apim-product                # API Product creation module
 |   ├── backend.tf                           # Terraform Backend configuration for state storage
 |   └── providers.tf                         # Terraform provide configuration           
-├── README.md                   # Project documentation
-└── LICENSE                     # License information
+├── README.md                                # Project documentation
+└── LICENSE                                  # License information
 ```
 ## Setup
 
