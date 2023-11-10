@@ -43,8 +43,8 @@ Before you begin, make sure you have the following installed:
 ### 1. Clone this repository:
 
 ```bash
-git clone https://github.com/your-username/azure-api-terraform.git
-cd azure-api-terraform
+git clone https://github.com/{your-username}/azure-apim-apis-deployment-terraform-github-actions
+cd azure-apim-apis-deployment-terraform-github-actions
 ```
 
 ### 2. Create a service principal in Azure and set the following secrets in your GitHub repository settings:
