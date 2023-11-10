@@ -88,12 +88,23 @@ cd azure-apim-apis-deployment-terraform-github-actions
 ```
 
 ### 2. Create a service principal in Azure and set the following secrets in your GitHub repository settings:
-
+  **Create GitHub Environment**
+  The workflows utilizes GitHub Environments and Secrets to store the azure identity information. Create an environment named production by following these [instructions](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#environment-secrets)
+.
 - `ARM_CLIENT_ID`: Azure Service Principal Client ID
-- `ARM_CLIENT_SECRET`: Azure Service Principal Client Secret
 - `ARM_SUBSCRIPTION_ID`: Azure Subscription ID
 - `ARM_TENANT_ID`: Azure Tenant ID
+- `PEM-PWD`: Azure Service Principal Certificate PFX
+- `TF_BACKEND_RG`: Terraform State Storage Account Resource Group
+- `TF_BACKEND_STACC`: Terraform State Storage Account Name
+- `TF_CONTAINER`: Terraform State Storage Container
+- `ARM_CLIENT_CERTIFICATE`: Azure Service Principal Certificate PFX
+- `ARM_CERT_THUMBPRINT`: Azure Service Principal Certificate Thumbprint
+- `ARM_KEYVAULT`: Azure Key Vault
+- `RUNNER_USER`: Github Self Hosted Runner User Name
 
+  Create Below variables in 
+  
 ### 3. Customize the Terraform configuration in the `infra` folder according to your requirements.
 
 ### 4. Workflow.
