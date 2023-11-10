@@ -28,19 +28,18 @@ Before you begin, make sure you have the following installed:
 ## Folder Structure
 ```
 .
-├── .github/workflows                                  # GitHub Actions workflows
-│   └── deploy.apiconnection.azblob.yml                # Workflow for BLOB Connection Deployment in Logic App
-│   └── deploy.azfunctionapp.yml
-│   └── deploy.azlogicapp.yml
-│   └── deploy.Create_API_Sub.yml
-│   └── deploy.function_withAPI.yml
-│   └── deploy.function.yml
-│   └── deploy.workflow_withAPI.yml
-│   └── deploy.workflow.yml
-│   └── terraformApply.yml
-│   └── terraformPlan.yml
-│   └── UpdateLAParameter.yml
-  
+├── .github/workflows                         # GitHub Actions workflows
+│   ├── deploy.apiconnection.azblob.yml       # Workflow for BLOB Connection Deployment in Logic App
+│   ├── deploy.azfunctionapp.yml              # Workflow for Function App Deployment
+│   ├── deploy.azlogicapp.yml                 # Workflow for Logic App Deployment 
+│   ├── deploy.Create_API_Sub.yml             # Workflow for Creating Subscription in Azure API Management Service and Storing Keys in Key Vault
+│   ├── deploy.function_withAPI.yml           # Workflow for function deployment in Azure Function App and creating named value pair and Backend in Azure API Managent Service
+│   ├── deploy.function.yml
+│   ├── deploy.workflow_withAPI.yml
+│   ├── deploy.workflow.yml
+│   ├── terraformApply.yml
+│   ├── terraformPlan.yml
+│   └── UpdateLAParameter.yml  
 ├── infra                       # Terraform infrastructure code
 │   ├── main.tf                 # Main Terraform configuration
 │   ├── variables.tf            # Variables used in the configuration
