@@ -37,9 +37,6 @@ Before you begin, make sure you have the following installed:
 ```
 ## Setup
 
-```markdown
-## Setup
-
 ### 1. Clone this repository:
 
 ```bash
