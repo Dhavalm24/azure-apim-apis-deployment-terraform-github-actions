@@ -21,7 +21,6 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.tenant_id }}
       PEM-FILE: /home/runner/work/spn.pfx
       PEM-PWD: ${{secrets.PFX_PASS}}
-      CERT: ${{secrets.CLIENT_CERTIFICATE_PASSWORD}}
       TF_BACKEND_RG: ${{secrets.TF_API_DEMO_RG}}
       TF_BACKEND_STACC: ${{secrets.TF_API_DEMO_BACKEND_STACC}}
       TF_CONTAINER: ${{secrets.TF_API_DEMO_CONTAINER}}
@@ -34,14 +33,9 @@ jobs:
           touch /home/runner/work/spn.pem
           echo "$CERT" > /home/runner/work/spn.pem  
           touch /home/runner/work/spn.pfx
-          # openssl pkcs12 -export -password pass:"${{env.PEM-PWD}}" -in /home/runner/work/spn.pem -out /home/runner/work/spn.pfx
-          # ls /home/runner/work/
       - name: Generate PFX Inside Runner
         shell: pwsh
         run: | 
-          # touch /home/runner/work/spn.pem
-          # echo "$CERT" > /home/runner/work/spn.pem  
-          # touch /home/runner/work/spn.pfx
           openssl pkcs12 -export -password pass:"${{env.PEM-PWD}}" -in /home/runner/work/spn.pem -out /home/runner/work/spn.pfx
           ls /home/runner/work/
             
