@@ -68,9 +68,13 @@ Before you begin, make sure you have the following installed:
 |        ├── env.tfvars                       # Environmental Variables file
 |        ├── main.tf                          # Terraform configuration file for creating API, API Operation, API Version Set, API Product, API tags, API Operation Tags, API Operation Request and reponse header, importing an API.
 |        └── variables.tf                     # Variables file         
-
-├── src                         # Source code for the API
-│   └── app                     # API application code
+|   └── modules                               # Terraform configuration modules
+|        └── apim-api
+|            └── apim-api-version-set        # API Version Set module
+|            └── apim-apis                   # API Creation module
+|            └── apim-product                # API Product creation module
+|   ├── backend.tf                           # Terraform Backend configuration for state storage
+|   └── providers.tf                         # Terraform provide configuration           
 ├── README.md                   # Project documentation
 └── LICENSE                     # License information
 ```
