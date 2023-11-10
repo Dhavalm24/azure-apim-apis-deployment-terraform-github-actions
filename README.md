@@ -33,8 +33,8 @@ Before you begin, make sure you have the following installed:
 │   ├── deploy.azfunctionapp.yml              # Workflow for Function App Deployment
 │   ├── deploy.azlogicapp.yml                 # Workflow for Logic App Deployment 
 │   ├── deploy.Create_API_Sub.yml             # Workflow for Creating Subscription in Azure API Management Service and Storing Keys in Key Vault
-│   ├── deploy.function_withAPI.yml           # Workflow for function deployment in Azure Function App and creating named value pair and Backend in Azure API Managent Service
-│   ├── deploy.function.yml                   # Workflow for function deployment in Azure Function App
+│   ├── deploy.function_withAPI.yml           # Workflow for .net function deployment in Azure Function App and creating named value pair and Backend in Azure API Managent Service
+│   ├── deploy.function.yml                   # Workflow for .net function deployment in Azure Function App
 │   ├── deploy.workflow_withAPI.yml           # Workflow for Logic App workflow deployment in Azure Logic App and creating named value pair and Backend in Azure API Managent Service 
 │   ├── deploy.workflow.yml                   # Workflow for Logic App workflow deployment in Azure Logic App
 │   ├── terraformApply.yml                    # Workflow for applying the API deployment in Azure API Management service
@@ -49,9 +49,17 @@ Before you begin, make sure you have the following installed:
 |           └── template.json                 # Template file for BLOB Connection
 |   └── azfunctionapp                         # Place all the Function Apps inside this Folder
 |       └── FA-PROJECT-NAME                   # Function App Folder - (Replace the Folder Name as per requirement)
-|           ├── parameters.DEV.json           # Parametes file for Function App creation (This is for one environment -DEV, copy the same file and rename DEV to another enviroment eg. UAT/PROD to create BLOB connection in UAT/PROD environment.
+|           ├── parameters.DEV.json           # Parametes file for Function App creation (This is for one environment -DEV, copy the same file and rename DEV to another enviroment eg. UAT/PROD to create Function Apps in UAT/PROD environment). 
 |           └── template.json                 # Template file for Function App
-│   
+|   └── azlogicapp                            # Place all the Logic Apps inside this Folder
+|       └── LA-PROJECT-NAME                   # Function App Folder - (Replace the Folder Name as per requirement)
+|           ├── parameters.DEV.json           # Parametes file for Logic App creation (This is for one environment -DEV, copy the same file and rename DEV to another enviroment eg. UAT/PROD to create Logic Apps in UAT/PROD environment).
+|           └── template.json                 # Template file for Logic App
+├── functions                                 # Place the Functions inside this folder
+│   └── Greetings                             # Reference .net Function code
+├── terraform                                 # Terraform configuration folder
+│   └── Dev                                   # Environment Folder. (This is for one environment -DEV, copy the folder and rename DEV to another environment eg. UAT/PROD to create
+        └── api-import                        #
 ├── src                         # Source code for the API
 │   └── app                     # API application code
 ├── README.md                   # Project documentation
