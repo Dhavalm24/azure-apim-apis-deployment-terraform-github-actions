@@ -9,7 +9,6 @@ This repository contains the necessary files and configurations to deploy an API
 - [Prerequisites](#prerequisites)
 - [Architecture](#architecture)
 - [Folder Structure](#folder-structure)
-- [Getting Started](#gettingstarted)
 - [Setup](#setup)
 - [Workflow](#workflow)
 - [Contributing](#contributing)
@@ -120,15 +119,9 @@ The workflows utilizes GitHub Environments and Secrets to store the azure identi
 | Row 4, Col 1    | Row 4, Col 2    | Row 4, Col 3 this is test    |
 
 
-The GitHub Actions workflow is defined in .github/workflows/main.yml. It performs the following steps:
 
-Set up the environment with necessary tools (Terraform, Azure CLI).
-Authenticate with Azure using the service principal.
-Run Terraform commands to plan and apply the infrastructure changes.
-The workflow is triggered on every push to the main branch.
-
-Contributing
+### 5. Contributing
 Feel free to contribute to this project by opening issues or creating pull requests. Your feedback and contributions are highly appreciated.
 
-License
+### 6. License
 This project is licensed under the MIT License.
