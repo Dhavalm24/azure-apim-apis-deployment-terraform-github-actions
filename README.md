@@ -142,7 +142,7 @@ The Approach for publishing the Function App APIs in APIM would be as follows: -
 8. Run Terraform Plan
 9. Run Terraform Apply
     
-### 4. Workflow.
+### 5. Workflow.
 
 | Column 1 Header | Column 2 Header | Column 3 Header |
 |-----------------|-----------------|-----------------|
@@ -153,8 +153,8 @@ The Approach for publishing the Function App APIs in APIM would be as follows: -
 
 
 
-### 5. Contributing
+### 6. Contributing
 Feel free to contribute to this project by opening issues or creating pull requests. Your feedback and contributions are highly appreciated.
 
-### 6. License
+### 7. License
 This project is licensed under the MIT License.
