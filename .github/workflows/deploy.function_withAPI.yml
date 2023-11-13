@@ -47,7 +47,7 @@ defaults:
 jobs:
     build-az-function:
       runs-on: [self-hosted]
-      if: ${{github.event.inputs.enableAISDeployment == 'true' && always()}}
+      if: ${{github.event.inputs.enableDeployment == 'true' && always()}}
       environment: ${{ github.event.inputs.environment}}  
       steps:
        - name: 'Checking out source code'
@@ -79,7 +79,7 @@ jobs:
     deploy-az-function:
       needs: [build-az-function]
       runs-on: [self-hosted]
-      if: ${{github.event.inputs.enableAISDeployment == 'true' && always() && needs.build-az-function.result == 'success' }}
+      if: ${{github.event.inputs.enableDeployment == 'true' && always() && needs.build-az-function.result == 'success' }}
       environment: ${{ github.event.inputs.environment}}
       env:
         ARM_CLIENT_ID: ${{ secrets.client_id }}
