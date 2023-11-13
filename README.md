@@ -110,8 +110,26 @@ The workflows utilizes GitHub Environments and Secrets to store the azure identi
 ### 3. Getting Started.
 
 1. Create a Service principal in Azure and use certificate based authentication to authenticate in Azure. For [reference](https://learn.microsoft.com/en-us/cli/azure/azure-cli-sp-tutorial-3)
-2.  Create a Self-Hosted Runner for Logic App Workflows and Function App Functions deployment. For [reference](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners)
-3.   Managed Github runner to be used for Terraform deployment. For [reference](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners) 
+2. Create a Self-Hosted Runner for Logic App Workflows and Function App Functions deployment. For [reference](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners)
+3. Managed Github runner to be used for Terraform deployment. For [reference](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners)
+4. Key Vault needs to be created before starting the deployment as the Key vault referenced is used in multiple github action workflows.
+5. Azure API Management Service managed identity needs to be provided with Get, List secret permission in the access policies for the Key Vault.
+6. Azure Service Princpal needs to be provided with Get, List, Set permission in the access policies for the Key vault.
+7. Storage account needs to be created for Terraform state storage.
+
+### 4. Deployment Steps
+The Approach for publishing the Logic App APIs in APIM would be as follows:- 
+
+1. Place the Application in the apps/folder
+2. Go to deployments/azlogicapp -Update Parameters.{env}.json file
+3. Update the Policy, add the APIs, API's Operations and map the operation’s Policy, add Product and update the Product's Policy (optional), add Operations Tags (optional), request and response header (optional), API version Set (optional), api-schemas (optional) in the terraform/{env}/main.tf
+4. User would need to update/replace the Backend Name, Workflow Name in the API Operation Policy for the respective environment (Dev, UAT, PRD) and create a policy for each Logic App workflow in Terraform.
+5. Push the changes to the repository
+6. Run the Deploy Logic App pipeline - ([deployazlogicapp.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.azlogicapp.yml)). This Step can be skipped if the Logic App is already present in Azure.
+7. Run the Deploy Logic App Workflow with API pipeline. ([deploy.workflow_withAPI.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.workflow_withAPI.yml)) This will create a Backend, Named Value Pair in Azure API Management.
+8. Run Terraform Plan
+9. Run Terraform Apply
+
 
 ### 4. Workflow.
 
