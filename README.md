@@ -109,9 +109,9 @@ The workflows utilizes GitHub Environments and Secrets to store the azure identi
   
 ### 3. Getting Started.
 
-1 - Create a Service principal in Azure and use certificate based authentication to authenticate in Azure. For [reference](https://learn.microsoft.com/en-us/cli/azure/azure-cli-sp-tutorial-3)
-2 - Create a Self-Hosted Runner for Logic App Workflows and Function App Functions deployment. For [reference](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners)
-3 - Managed Github runner to be used for Terraform deployment. For [reference](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners) 
+1. Create a Service principal in Azure and use certificate based authentication to authenticate in Azure. For [reference](https://learn.microsoft.com/en-us/cli/azure/azure-cli-sp-tutorial-3)
+2.  Create a Self-Hosted Runner for Logic App Workflows and Function App Functions deployment. For [reference](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners)
+3.   anaged Github runner to be used for Terraform deployment. For [reference](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners) 
 
 ### 4. Workflow.
 
