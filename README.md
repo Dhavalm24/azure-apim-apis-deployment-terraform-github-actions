@@ -123,14 +123,25 @@ The Approach for publishing the Logic App APIs in APIM would be as follows:-
 1. Place the Application in the apps/folder
 2. Go to deployments/azlogicapp -Update Parameters.{env}.json file
 3. Update the Policy, add the APIs, API's Operations and map the operation’s Policy, add Product and update the Product's Policy (optional), add Operations Tags (optional), request and response header (optional), API version Set (optional), api-schemas (optional) in the terraform/{env}/main.tf
-4. User would need to update/replace the Backend Name, Workflow Name in the API Operation Policy for the respective environment (Dev, UAT, PRD) and create a policy for each Logic App workflow in Terraform.
+4. User would need to update/replace the Backend Name, Workflow Name in the API Operation Policy for the respective environment (Dev, UAT, PRD) and create an operation policy for each Logic App workflow in Terraform.
 5. Push the changes to the repository
 6. Run the Deploy Logic App pipeline - ([deployazlogicapp.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.azlogicapp.yml)). This Step can be skipped if the Logic App is already present in Azure.
 7. Run the Deploy Logic App Workflow with API pipeline. ([deploy.workflow_withAPI.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.workflow_withAPI.yml)) This will create a Backend, Named Value Pair in Azure API Management.
 8. Run Terraform Plan
 9. Run Terraform Apply
 
+The Approach for publishing the Function App APIs in APIM would be as follows: -
 
+1. Place the Application in the functions/folder
+2. Go to deployments/azfunctionapp -Update Parameters.{env}.json file
+3. Update the Policy, add the APIs, API's Operations and map the operation’s Policy, add Product and update the Product's Policy (optional), add Operations Tags (optional), request and response header (optional), API version Set (optional), api-schemas (optional) in the terraform/{env}/main.tf
+4. User would need to update/replace the Backend Name, Workflow Name in the API Operation Policy for the respective environment (Dev, UAT, PRD) and create an operation policy for each Function in Terraform.
+5. Push the changes to the repository
+6. Run the Deploy Function App pipeline - ([deployazfunctionapp.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.azfunctionapp.yml)). This Step can be skipped if the Function App is already present in Azure.
+7. Run the Deploy Function App Workflow with API pipeline. ([deploy.function_withAPI.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.function_withAPI.yml))This will create a Backend, Named Value Pair in Azure API Management.
+8. Run Terraform Plan
+9. Run Terraform Apply
+    
 ### 4. Workflow.
 
 | Column 1 Header | Column 2 Header | Column 3 Header |
