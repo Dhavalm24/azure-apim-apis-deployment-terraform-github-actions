@@ -142,7 +142,7 @@ The Approach for publishing the Function App APIs in APIM would be as follows: -
 8. Run Terraform Plan
 9. Run Terraform Apply
     
-### 5. Workflow.
+### 5. Workflows.
 
 | Column 1 Header | Column 2 Header | Column 3 Header |
 |-----------------|-----------------|-----------------|
