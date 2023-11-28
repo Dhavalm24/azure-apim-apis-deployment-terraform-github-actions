@@ -144,6 +144,8 @@ The Approach for publishing the Function App APIs in APIM would be as follows: -
 
 ### 5. Workflows
 
+1. ([deploy.apiconnection.azblob.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.apiconnection.azblob.yml)
+
 | Column 1 Header | Column 2 Header | Column 3 Header |
 |-----------------|-----------------|-----------------|
 | Row 1, Col 1    | Row 1, Col 2    | **Row** 1, Col 3    |
