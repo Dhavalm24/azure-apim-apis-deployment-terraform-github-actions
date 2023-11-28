@@ -141,7 +141,7 @@ The Approach for publishing the Function App APIs in APIM would be as follows: -
 7. Run the Deploy Function App Workflow with API pipeline. ([deploy.function_withAPI.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.function_withAPI.yml))This will create a Backend, Named Value Pair in Azure API Management.
 8. Run Terraform Plan
 9. Run Terraform Apply
------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 ### 5. Workflows
 
 | Column 1 Header | Column 2 Header | Column 3 Header |
