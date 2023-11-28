@@ -107,7 +107,7 @@ The workflows utilizes GitHub Environments and Secrets to store the azure identi
 - `APIM_NAME`: Azure API Management Service Name
 - `APIM_RG`: Azure API Management Service Resource Group
   
-### 3. Getting Started.
+### 3. Getting Started
 
 1. Create a Service principal in Azure and use certificate based authentication to authenticate in Azure. For [reference](https://learn.microsoft.com/en-us/cli/azure/azure-cli-sp-tutorial-3)
 2. Create a Self-Hosted Runner for Logic App Workflows and Function App Functions deployment. For [reference](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners)
@@ -141,8 +141,8 @@ The Approach for publishing the Function App APIs in APIM would be as follows: -
 7. Run the Deploy Function App Workflow with API pipeline. ([deploy.function_withAPI.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.function_withAPI.yml))This will create a Backend, Named Value Pair in Azure API Management.
 8. Run Terraform Plan
 9. Run Terraform Apply
-    
-### 5. Workflows.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+### 5. Workflows
 
 | Column 1 Header | Column 2 Header | Column 3 Header |
 |-----------------|-----------------|-----------------|
