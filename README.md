@@ -145,6 +145,16 @@ The Approach for publishing the Function App APIs in APIM would be as follows: -
 ### 5. Workflows
 
 1. [deploy.apiconnection.azblob.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.apiconnection.azblob.yml)
+2. [deploy.azfunctionapp.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.azfunctionapp.yml)
+3. [deploy.azlogicapp.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.azlogicapp.yml)
+4. [deploy.Create_API_Sub.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.Create_API_Sub.yml)
+5. [deploy.function_withAPI.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.function_withAPI.yml)
+6. [deploy.function.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.function.yml)
+7. [deploy.workflow_withAPI.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.workflow_withAPI.yml)
+8. [deploy.workflow.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/deploy.workflow.yml)
+9. [terraformApply.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/terraformApply.yml)
+10. [terraformPlan.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/terraformPlan.yml)
+11. [UpdateLAParameter.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/UpdateLAParameter.yml)
 
 | Column 1 Header | Column 2 Header | Column 3 Header |
 |-----------------|-----------------|-----------------|
