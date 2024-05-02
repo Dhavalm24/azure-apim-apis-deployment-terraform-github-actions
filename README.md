@@ -156,17 +156,4 @@ The Approach for publishing the Function App APIs in APIM would be as follows: -
 10. [terraformPlan.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/terraformPlan.yml)
 11. [UpdateLAParameter.yml](https://github.com/Dhavalm24/azure-apim-apis-deployment-terraform-github-actions/blob/main/.github/workflows/UpdateLAParameter.yml)
 
-| Column 1 Header | Column 2 Header | Column 3 Header |
-|-----------------|-----------------|-----------------|
-| Row 1, Col 1    | Row 1, Col 2    | **Row** 1, Col 3    |
-| Row 2, Col 1    | Row 2, Col 2    | Row 2, Col 3    |
-| Row 3, Col 1    | Row 3, Col 2    | Row 3, Col 3    |
-| Row 4, Col 1    | Row 4, Col 2    | Row 4, Col 3 this is test    |
 
-
-
-### 6. Contributing
-Feel free to contribute to this project by opening issues or creating pull requests. Your feedback and contributions are highly appreciated.
-
-### 7. License
-This project is licensed under the MIT License.
